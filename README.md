@@ -1,6 +1,6 @@
-##Online Marketplace Restful API
+# Online Marketplace Restful API
 
-#Project Description
+## Project Description
 
 This project is an implementation of an online marketplace RESTful API in Java. It provides endpoints for managing various aspects of an online marketplace, including user authentication, product management, orders, and more.
 
@@ -32,7 +32,7 @@ Password: Admin123@
 
 
 
-## Running Docker Image
+# Running Docker Image
 
 # Ensure Maven CLI is Installed:
 Make sure you have Maven Command Line Interface (CLI) installed on your system. You can verify this by running:=> mvn -v
