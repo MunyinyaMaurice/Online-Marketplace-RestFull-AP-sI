@@ -38,7 +38,7 @@ public class ProductDto {
         @NotNull(message = "category ID shouldn't be null")
         private Integer categoryId;
 
-        @NotNull(message = "seller ID shouldn't be null")
+        // @NotNull(message = "seller ID shouldn't be null")
         private Integer sellerId;
 
         private Date dateCreated;
