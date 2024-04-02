@@ -87,21 +87,34 @@ public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto
 
     // Get product and it's images by product ID
     @GetMapping("/image/{productId}")
-    public ResponseEntity<?> getProductImageData(@PathVariable Integer productId) {
+    public ResponseEntity<?> getProductImageData( @PathVariable Integer productId) {
         try {
-            ProductWithImageDataDto productWithImageDataDto = productService.getProductWithImageData(productId);
-            return ResponseEntity.ok(productWithImageDataDto);
+            ResponseEntity<?> productWithImageDataDto = productService.getProductWithImageData(productId);
+            return ResponseEntity.ok(productWithImageDataDto.getBody());
+        } catch (EntityNotFoundException ex) {
+            // return ResponseEntity.notFound().body(ex.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to retrieve product image data.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
 
     @GetMapping("/{productId}")
-    public ResponseEntity<Product> getProductById(@PathVariable Integer productId) {
-        Product product = productService.findProductById(productId);
-        return ResponseEntity.ok(product);
+    
+    public ResponseEntity<?> getProductById(@PathVariable Integer productId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            ResponseEntity<?> productResponseEntity = productService.findProductById(productId);
+            
+            response.put("product", productResponseEntity.getBody());
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (EntityNotFoundException ex) {
+            response.put("error", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
     }
+    
     @DeleteMapping("/del/{productId}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Integer productId) {
         productService.deleteProductById(productId);

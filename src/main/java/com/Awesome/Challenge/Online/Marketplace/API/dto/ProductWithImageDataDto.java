@@ -26,12 +26,12 @@ public class ProductWithImageDataDto {
 
     private Integer quantity;
 
-    private Category categoryId;
+    // private Category categoryId;
 
-    private User sellerId;
+    // private User sellerId;
 
-    private Date dateCreated;
+    // private Date dateCreated;
 
-    private Date lastUpdated;
+    // private Date lastUpdated;
     private List<String> imageDataList;
 }

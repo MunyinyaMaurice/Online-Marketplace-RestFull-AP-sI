@@ -20,6 +20,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -140,84 +141,6 @@ public class ProductService {
             return false; // If parsing fails, the value is not a valid integer
         }
     }
-    
-    
-        // public ResponseEntity<?> updateProduct(Integer productId, ProductUpdateDto productDto) {
-        //     try {
-        //         // Retrieve the existing Product entity from the database
-        //         Product existingProduct = productRepository.findById(productId)
-        //                 .orElseThrow(() -> new RuntimeException("Product not found for id: " + productId));
-        
-        //         // Update the fields of the existing Product entity with the new values from the ProductDto
-        
-        //         // Validate and update product name if provided
-        //         if (productDto.getName() != null) {
-        //             if (!productRepository.existsByName(productDto.getName())) {
-        //                 existingProduct.setName(productDto.getName());
-        //             } else {
-        //                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        //                         .body("{\"error\": \"Product name must be unique.\"}");
-        //             }
-        //         }
-        
-        //         // Validate and update product description if provided
-        //         if (productDto.getDescription() != null) {
-        //             existingProduct.setDescription(productDto.getDescription());
-        //         }
-        
-        //         // Validate and update product price if provided
-        //         if (productDto.getPrice() != null) {
-        //             if (productDto.getPrice().compareTo(BigDecimal.ZERO) > 0) {
-        //                 existingProduct.setPrice(productDto.getPrice());
-        //             } else {
-        //                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        //                         .body("{\"error\": \"Price must be greater than 0.\"}");
-        //             }
-        //         }
-        
-        //         // Validate and update product quantity if provided
-        //         if (productDto.getQuantity() != null) {
-        //             if (productDto.getQuantity() > 0) {
-        //                 existingProduct.setQuantity(productDto.getQuantity());
-        //             } else {
-        //                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        //                         .body("{\"error\": \"Quantity must be greater than 0.\"}");
-        //             }
-        //         }
-        
-        //         // Validate and update product category if provided
-        //         if (productDto.getCategoryId() != null) {
-        //             if (categoryRepository.existsById(productDto.getCategoryId())) {
-        //                 Category category = categoryRepository.findById(productDto.getCategoryId())
-        //                         .orElseThrow(() -> new RuntimeException("Category not found for categoryId: " + productDto.getCategoryId()));
-        //                 existingProduct.setCategory(category);
-        //             } else {
-        //                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        //                         .body("{\"error\": \"Category not Exist for categoryId: " + productDto.getCategoryId() + "\"}");
-        //             }
-        //         }
-        
-        //         // Validate and update product seller if provided
-        //         if (productDto.getSellerId() != null) {
-        //             if (userRepository.existsById(productDto.getSellerId())) {
-        //                 User seller = userRepository.findById(productDto.getSellerId())
-        //                         .orElseThrow(() -> new RuntimeException("User (seller) not found for sellerId: " + productDto.getSellerId()));
-        //                 existingProduct.setSeller(seller);
-        //             } else {
-        //                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        //                         .body("{\"error\": \"User (seller) not Exist for sellerId: " + productDto.getSellerId() + "\"}");
-        //             }
-        //         }
-        
-        //         // Save and return the updated Product entity
-        //         Product updatedProduct = productRepository.save(existingProduct);
-        //         return ResponseEntity.ok(updatedProduct);
-        
-        //     } catch (RuntimeException e) {
-        //         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        //                 .body("{\"error\": \"" + e.getMessage() + "\"}");
-        //     }
-        // }
 
         public ResponseEntity<Map<String, Object>> updateProduct(Integer productId, ProductUpdateDto productDto,@Valid BindingResult bindingResult) {
             Map<String, Object> response = new HashMap<>();
@@ -314,56 +237,79 @@ public class ProductService {
         }
        
     // Find a product by its ID
-    public Product findProductById(Integer productId) {
-        return productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found for id: " + productId));
-    }
-
-    public ProductWithImageDataDto getProductWithImageData(Integer productId) {
+    public ResponseEntity<?> findProductById(Integer productId) {
+        Map<String, Object> response = new HashMap<>();
         try {
-            // Retrieve the product from the database
             Product product = productRepository.findById(productId)
-                    .orElseThrow(() -> new RuntimeException("Product not found with ID: " + productId));
-
-            // Retrieve the associated image data
-            List<ProductImage> productImages = productImageRepository.findByProductId(productId);
-
-            // Create a new DTO to hold product data with image data
-            ProductWithImageDataDto productWithImageDataDto = new ProductWithImageDataDto();
-            productWithImageDataDto.setId(product.getId());
-            productWithImageDataDto.setName(product.getName());
-            productWithImageDataDto.setDescription(product.getDescription());
-            productWithImageDataDto.setPrice(product.getPrice());
-            productWithImageDataDto.setQuantity(product.getQuantity());
-            productWithImageDataDto.setSellerId(product.getSeller());
-            productWithImageDataDto.setCategoryId(product.getCategory());
-            productWithImageDataDto.setDateCreated(product.getDateCreated());
-            productWithImageDataDto.setLastUpdated(product.getLastUpdated());
-
-            // Convert image data to Base64 for easy transmission
-            List<String> imageDataList = productImages.stream()
-                    .map(productImage -> Base64.getEncoder().encodeToString(productImage.getImageData()))
-                    .collect(Collectors.toList());
-            productWithImageDataDto.setImageDataList(imageDataList);
-
-            return productWithImageDataDto;
-        } catch (Exception e) {
-            logger.error("Failed to get product data with image for product ID: {}", productId, e);
-            throw new RuntimeException("Failed to get product data with image for product ID: " + productId);
+                    .orElseThrow(() -> new EntityNotFoundException("Product not found for id: " + productId));
+                     response.put("product", product);
+            return ResponseEntity.ok(product);
+        } catch (EntityNotFoundException ex) {
+            response.put("error", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception ex) {
+            response.put("error", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-
-    // This method Delete a product by its ID
-    public void deleteProductById(Integer productId) {
-        if(productId == null){
-            throw new IllegalArgumentException("Product ID cannot be null.");
+    public ResponseEntity<?> getProductWithImageData(Integer productId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // Check if the product exists
+            if (productRepository.existsById(productId)) {
+                // Retrieve the product from the database
+                Product product = productRepository.findById(productId)
+                        .orElseThrow(() -> new EntityNotFoundException("Product not found with ID: " + productId));
+                
+                // Retrieve the associated image data
+                List<ProductImage> productImages = productImageRepository.findByProductId(productId);
+        
+                // Created a new DTO to hold product data with image data
+                ProductWithImageDataDto productWithImageDataDto = new ProductWithImageDataDto();
+                productWithImageDataDto.setId(product.getId());
+                productWithImageDataDto.setName(product.getName());
+                productWithImageDataDto.setDescription(product.getDescription());
+                productWithImageDataDto.setPrice(product.getPrice());
+                productWithImageDataDto.setQuantity(product.getQuantity());
+        
+                // Convert image data to Base64 for easy transmission
+                List<String> imageDataList = productImages.stream()
+                        .map(productImage -> Base64.getEncoder().encodeToString(productImage.getImageData()))
+                        .collect(Collectors.toList());
+                productWithImageDataDto.setImageDataList(imageDataList);
+                response.put("productWithImages", productWithImageDataDto);
+                return ResponseEntity.ok(response);
+            } else {
+                throw new EntityNotFoundException("Product not found with ID: " + productId);
+            }
+        } catch (EntityNotFoundException ex) {
+            response.put("message", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception ex) {
+            response.put("message", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);    
         }
-         Product product = findProductById(productId);
+    }
+    // This method Delete a product by its ID
+    
+public void deleteProductById(Integer productId) {
+    if (productId == null) {
+        throw new IllegalArgumentException("Product ID cannot be null.");
+    }
 
-    try{
+    try {
+        // Attempt to retrieve the product by ID
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Product not found for ID: " + productId));
+
+        // Delete the product
         productRepository.delete(product);
-    }catch (Exception e) {
-        e.printStackTrace();
+    } catch (EmptyResultDataAccessException ex) {
+        // Handle case where product with given ID does not exist
+        throw new NotFoundException("Product not found for ID: " + productId);
+    } catch (Exception ex) {
+        // Handle other unexpected exceptions
+        ex.printStackTrace(); // Print stack trace for debugging
         throw new RuntimeException("Failed to delete product. Please try again later.");
     }
     }
