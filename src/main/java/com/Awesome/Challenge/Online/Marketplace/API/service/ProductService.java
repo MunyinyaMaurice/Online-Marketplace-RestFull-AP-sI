@@ -2,7 +2,10 @@
 package com.Awesome.Challenge.Online.Marketplace.API.service;
 
 import com.Awesome.Challenge.Online.Marketplace.API.dto.ProductDto;
+import com.Awesome.Challenge.Online.Marketplace.API.dto.ProductUpdateDto;
 import com.Awesome.Challenge.Online.Marketplace.API.dto.ProductWithImageDataDto;
+import com.Awesome.Challenge.Online.Marketplace.API.exception.*;
+// import com.Awesome.Challenge.Online.Marketplace.API.exception.UserNotFoundException;
 import com.Awesome.Challenge.Online.Marketplace.API.model.Category;
 import com.Awesome.Challenge.Online.Marketplace.API.model.Product;
 import com.Awesome.Challenge.Online.Marketplace.API.model.ProductImage;
@@ -83,22 +86,7 @@ public class ProductService {
             Category category = categoryRepository.findById(categoryId)
                     .orElseThrow(() -> new EntityNotFoundException("Category not found for categoryId: " + categoryId));
 
-            // Validating price and quantity from ProductDto
-            // try {
-            //     BigDecimal price = new BigDecimal(productDto.getPrice().toString());
-            //     if (price.compareTo(BigDecimal.ZERO) < 0) {
-            //         throw new IllegalArgumentException("Price must be greater than or equal to zero.");
-            //     }
-    
-            //     Integer quantity = Integer.valueOf(productDto.getQuantity().toString());
-            //     if (quantity < 0) {
-            //         throw new IllegalArgumentException("Quantity must be a positive integer.");
-            //     }
-            // } catch (NumberFormatException ex) {
-            //     response.put("message", "Invalid format for price or quantity. Please enter numbers only.");
-            //     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-            // }
-          // Validate price and quantity
+                  // Validate price and quantity
           if (!isValidNumericValue(productDto.getPrice()) || !isValidNumericValue(productDto.getQuantity())) {
             response.put("message", "Price and quantity must be numeric values.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -138,7 +126,8 @@ public class ProductService {
                 return false; // Null values are not considered numeric
             }
         } catch (NumberFormatException ex) {
-            return false; // If parsing fails, the value is not numeric
+            // return false; 
+            throw new IllegalArgumentException("Invalid numeric value: " + value);
         }
     }
     
@@ -154,40 +143,160 @@ public class ProductService {
     
     
 
-    public Product updateProduct(Integer productId, ProductDto productDto) {
-        // Retrieve the existing Product entity from the database
-        Product existingProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found for id: " + productId));
-
-        // Update the fields of the existing Product entity with the new values from the ProductDto
-        if (productDto.getName() != null) {
-            existingProduct.setName(productDto.getName());
-        }
-        if (productDto.getDescription() != null) {
-            existingProduct.setDescription(productDto.getDescription());
-        }
-        if (productDto.getPrice() != null) {
-            existingProduct.setPrice(productDto.getPrice());
-        }
-        if (productDto.getQuantity() != null) {
-            existingProduct.setQuantity(productDto.getQuantity());
-        }
-        if (productDto.getCategoryId() != null) {
-            // Fetch the Category entity from the database based on the provided categoryId
-            Category category = categoryRepository.findById(productDto.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Category not found for categoryId: " + productDto.getCategoryId()));
-            existingProduct.setCategory(category);
-        }
-        if (productDto.getSellerId() != null) {
-            // Fetch the User (seller) entity from the database based on the provided sellerId
-            User seller = userRepository.findById(productDto.getSellerId())
-                    .orElseThrow(() -> new RuntimeException("User (seller) not found for sellerId: " + productDto.getSellerId()));
-            existingProduct.setSeller(seller);
-        }
-
-        // Save and return the updated Product entity
-        return productRepository.save(existingProduct);
-    }
+    // public Product updateProduct(Integer productId, ProductUpdateDto productDto) {
+        // public ResponseEntity<?> updateProduct(Integer productId, ProductUpdateDto productDto) {
+        //     try {
+        //         // Retrieve the existing Product entity from the database
+        //         Product existingProduct = productRepository.findById(productId)
+        //                 .orElseThrow(() -> new RuntimeException("Product not found for id: " + productId));
+        
+        //         // Update the fields of the existing Product entity with the new values from the ProductDto
+        
+        //         // Validate and update product name if provided
+        //         if (productDto.getName() != null) {
+        //             if (!productRepository.existsByName(productDto.getName())) {
+        //                 existingProduct.setName(productDto.getName());
+        //             } else {
+        //                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        //                         .body("{\"error\": \"Product name must be unique.\"}");
+        //             }
+        //         }
+        
+        //         // Validate and update product description if provided
+        //         if (productDto.getDescription() != null) {
+        //             existingProduct.setDescription(productDto.getDescription());
+        //         }
+        
+        //         // Validate and update product price if provided
+        //         if (productDto.getPrice() != null) {
+        //             if (productDto.getPrice().compareTo(BigDecimal.ZERO) > 0) {
+        //                 existingProduct.setPrice(productDto.getPrice());
+        //             } else {
+        //                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        //                         .body("{\"error\": \"Price must be greater than 0.\"}");
+        //             }
+        //         }
+        
+        //         // Validate and update product quantity if provided
+        //         if (productDto.getQuantity() != null) {
+        //             if (productDto.getQuantity() > 0) {
+        //                 existingProduct.setQuantity(productDto.getQuantity());
+        //             } else {
+        //                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        //                         .body("{\"error\": \"Quantity must be greater than 0.\"}");
+        //             }
+        //         }
+        
+        //         // Validate and update product category if provided
+        //         if (productDto.getCategoryId() != null) {
+        //             if (categoryRepository.existsById(productDto.getCategoryId())) {
+        //                 Category category = categoryRepository.findById(productDto.getCategoryId())
+        //                         .orElseThrow(() -> new RuntimeException("Category not found for categoryId: " + productDto.getCategoryId()));
+        //                 existingProduct.setCategory(category);
+        //             } else {
+        //                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        //                         .body("{\"error\": \"Category not Exist for categoryId: " + productDto.getCategoryId() + "\"}");
+        //             }
+        //         }
+        
+        //         // Validate and update product seller if provided
+        //         if (productDto.getSellerId() != null) {
+        //             if (userRepository.existsById(productDto.getSellerId())) {
+        //                 User seller = userRepository.findById(productDto.getSellerId())
+        //                         .orElseThrow(() -> new RuntimeException("User (seller) not found for sellerId: " + productDto.getSellerId()));
+        //                 existingProduct.setSeller(seller);
+        //             } else {
+        //                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        //                         .body("{\"error\": \"User (seller) not Exist for sellerId: " + productDto.getSellerId() + "\"}");
+        //             }
+        //         }
+        
+        //         // Save and return the updated Product entity
+        //         Product updatedProduct = productRepository.save(existingProduct);
+        //         return ResponseEntity.ok(updatedProduct);
+        
+        //     } catch (RuntimeException e) {
+        //         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        //                 .body("{\"error\": \"" + e.getMessage() + "\"}");
+        //     }
+        // }
+        public ResponseEntity<?> updateProduct(Integer productId, ProductUpdateDto productDto) {
+            try {
+              // Retrieve the existing Product entity from the database
+              Product existingProduct = productRepository.findById(productId)
+                  .orElseThrow(() -> new ProductNotFoundException("Product not found for id: " + productId));
+          
+              // Update the fields of the existing Product entity with the new values from the ProductDto
+          
+              // Validate and update product name if provided
+              if (productDto.getName() != null) {
+                if (productRepository.existsByName(productDto.getName())) {
+                  return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                      .body("{\"error\": \"Product name must be unique.\"}");
+                }
+                existingProduct.setName(productDto.getName());
+              }
+          
+              // Validate and update product description if provided
+              if (productDto.getDescription() != null) {
+                existingProduct.setDescription(productDto.getDescription());
+              }
+          
+              // Validate and update product price if provided
+              if (productDto.getPrice() != null) {
+                if (productDto.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+                  return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                      .body("{\"error\": \"Price must be greater than 0.\"}");
+                }
+                existingProduct.setPrice(productDto.getPrice());
+              }
+          
+              // Validate and update product quantity if provided
+              if (productDto.getQuantity() != null) {
+                if (productDto.getQuantity() <= 0) {
+                  return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                      .body("{\"error\": \"Quantity must be greater than 0.\"}");
+                }
+                existingProduct.setQuantity(productDto.getQuantity());
+              }
+          
+              // Validate and update product category if provided
+              if (productDto.getCategoryId() != null) {
+                if (!categoryRepository.existsById(productDto.getCategoryId())) {
+                  return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                      .body("{\"error\": \"Category not found for categoryId: " + productDto.getCategoryId() + "\"}");
+                }
+                Category category = categoryRepository.findById(productDto.getCategoryId())
+                    .orElseThrow(() -> new CategoryNotFoundException("Category not found for categoryId: " + productDto.getCategoryId()));
+                existingProduct.setCategory(category);
+              }
+          
+              // Validate and update product seller if provided
+              if (productDto.getSellerId() != null) {
+                if (!userRepository.existsById(productDto.getSellerId())) {
+                  return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                      .body("{\"error\": \"User (seller) not found for sellerId: " + productDto.getSellerId() + "\"}");
+                }
+                User seller = userRepository.findById(productDto.getSellerId())
+                    .orElseThrow(() -> new UserNotFoundException("User (seller) not found for sellerId: " + productDto.getSellerId()));
+                existingProduct.setSeller(seller);
+              }
+          
+              // Save and return the updated Product entity
+              Product updatedProduct = productRepository.save(existingProduct);
+              return ResponseEntity.ok(updatedProduct);
+          
+            } catch (ProductNotFoundException | CategoryNotFoundException | UserNotFoundException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("{\"error\": \"" + e.getMessage() + "\"}");
+              
+            } catch (RuntimeException e) {
+              // Catch other unexpected exceptions (consider logging)
+              return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                  .body("{\"error\": \"An unexpected error occurred.\"}");
+            }
+          }
+          
     // Find a product by its ID
     public Product findProductById(Integer productId) {
         return productRepository.findById(productId)

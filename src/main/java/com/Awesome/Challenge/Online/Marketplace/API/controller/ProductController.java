@@ -1,6 +1,7 @@
 package com.Awesome.Challenge.Online.Marketplace.API.controller;
 
 import com.Awesome.Challenge.Online.Marketplace.API.dto.ProductDto;
+import com.Awesome.Challenge.Online.Marketplace.API.dto.ProductUpdateDto;
 import com.Awesome.Challenge.Online.Marketplace.API.dto.ProductWithImageDataDto;
 import com.Awesome.Challenge.Online.Marketplace.API.model.Product;
 import com.Awesome.Challenge.Online.Marketplace.API.secuirity.auth.RegisterRequest;
@@ -79,22 +80,16 @@ public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to retrieve product image data.");
         }
     }
-@PutMapping("/update/{productId}")
-public ResponseEntity<?> updateProduct(@PathVariable Integer productId, @RequestBody @Valid ProductDto productDto, BindingResult bindingResult) {
-    if (bindingResult.hasErrors()) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("error", "Validation failed");
-        response.put("errors", bindingResult.getAllErrors().stream()
-                .map(ObjectError::getDefaultMessage)
-                .collect(Collectors.toList()));
-        return ResponseEntity.badRequest().body(response); // Return a JSON object with error messages
-    } else {
-        Product updatedProduct = productService.updateProduct(productId, productDto);
-        return ResponseEntity.ok(updatedProduct);
+    @PutMapping("/update/{productId}")
+    public ResponseEntity<?> updateProduct(@PathVariable Integer productId, @RequestBody ProductUpdateDto productDto) {
+        try {
+            ResponseEntity<?> updatedProduct = productService.updateProduct(productId, productDto);
+            return ResponseEntity.ok(updatedProduct);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body("{\"error\": \"" + e.getMessage() + "\"}");
+        }
     }
-}
-
-
 
     @GetMapping("/{productId}")
     public ResponseEntity<Product> getProductById(@PathVariable Integer productId) {
