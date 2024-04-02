@@ -37,5 +37,7 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
     @Query("SELECT p FROM Product p WHERE p.listed = true AND p.name LIKE CONCAT('%', :searchParam, '%')")
     List<Product> searchByProductName(@Param("searchParam") String searchParam);
 
+    boolean existsByName(String name);
+
 
 }

@@ -50,20 +50,6 @@ public class AuthenticationService {
             }
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
         }
-        //  // Custom validation for email format
-        //  if (!isValidEmail(request.getEmail())) {
-        //     Map<String, String> errors = new HashMap<>();
-        //     errors.put("email", "Invalid email format.");
-        //     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
-        // }
-
-        // // Custom validation for password format
-        // if (!isValidPassword(request.getPassword())) {
-        //     Map<String, String> errors = new HashMap<>();
-        //     errors.put("password", "Invalid password format.");
-        //     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
-        // }
-
          // Check if the email already exists
          if (repo.existsByEmail(request.getEmail())) {
             Map<String, String> errors = new HashMap<>();
@@ -137,20 +123,20 @@ public class AuthenticationService {
         return ResponseEntity.ok(Map.of("accessToken", jwtToken, "refreshToken", refreshToken));
     }
     // Validate email format
-    private boolean isValidEmail(String email) {
-        // Add your email validation logic here, for example:
-        String regex = "^(.+)@(.+)$";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(email);
-        return matcher.matches();
-    }
+    // private boolean isValidEmail(String email) {
+    //     // Add your email validation logic here, for example:
+    //     String regex = "^(.+)@(.+)$";
+    //     Pattern pattern = Pattern.compile(regex);
+    //     Matcher matcher = pattern.matcher(email);
+    //     return matcher.matches();
+    // }
 
-    // Validate password format
-    private boolean isValidPassword(String password) {
-        // Add your password validation logic here, for example:
-        String regex = "^(?=.*[A-Z])(?=.*[!@#$%^&*()-+=]).{6,14}$";
-        return password.matches(regex);
-    }
+    // // Validate password format
+    // private boolean isValidPassword(String password) {
+    //     // Add your password validation logic here, for example:
+    //     String regex = "^(?=.*[A-Z])(?=.*[!@#$%^&*()-+=]).{6,14}$";
+    //     return password.matches(regex);
+    // }
 
     private void revokeAllUserTokens(User user) {
         var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());

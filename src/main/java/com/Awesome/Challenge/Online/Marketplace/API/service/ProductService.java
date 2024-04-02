@@ -12,14 +12,22 @@ import com.Awesome.Challenge.Online.Marketplace.API.repository.ProductImageRepos
 import com.Awesome.Challenge.Online.Marketplace.API.repository.ProductRepository;
 import com.Awesome.Challenge.Online.Marketplace.API.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 
 import java.math.BigDecimal;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.Awesome.Challenge.Online.Marketplace.API.secuirity.config.ApplicationConfig.getCurrentUser;
@@ -50,10 +58,24 @@ public class ProductService {
 
     }
     // This method create new product, associate it to seller. sets the listed flag based on the quantity provided =>true >0
-    public Product createProduct(ProductDto productDto) {
+    public ResponseEntity<Map<String, Object>> createProduct(@Valid ProductDto productDto, BindingResult bindingResult) {
+    Map<String, Object> response = new HashMap<>();
+
+    if (bindingResult.hasErrors()) {
+        // Handling validation errors
+        Map<String, String> errors = bindingResult.getFieldErrors().stream()
+                .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
+        response.put("errors", errors);
+        response.put("message", "Validation failed");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
         try {
             User seller = getCurrentUser();
 
+            if (productRepository.existsByName(productDto.getName())) {
+                response.put("message", "A product with the same name already exists.");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+            }
             // Extract the categoryId from the ProductDto
             Integer categoryId = productDto.getCategoryId();
 
@@ -61,6 +83,26 @@ public class ProductService {
             Category category = categoryRepository.findById(categoryId)
                     .orElseThrow(() -> new EntityNotFoundException("Category not found for categoryId: " + categoryId));
 
+            // Validating price and quantity from ProductDto
+            // try {
+            //     BigDecimal price = new BigDecimal(productDto.getPrice().toString());
+            //     if (price.compareTo(BigDecimal.ZERO) < 0) {
+            //         throw new IllegalArgumentException("Price must be greater than or equal to zero.");
+            //     }
+    
+            //     Integer quantity = Integer.valueOf(productDto.getQuantity().toString());
+            //     if (quantity < 0) {
+            //         throw new IllegalArgumentException("Quantity must be a positive integer.");
+            //     }
+            // } catch (NumberFormatException ex) {
+            //     response.put("message", "Invalid format for price or quantity. Please enter numbers only.");
+            //     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            // }
+          // Validate price and quantity
+          if (!isValidNumericValue(productDto.getPrice()) || !isValidNumericValue(productDto.getQuantity())) {
+            response.put("message", "Price and quantity must be numeric values.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
             // Create the Product entity with the retrieved Category and User (seller)
             Product product = Product.builder()
                     .name(productDto.getName())
@@ -75,13 +117,42 @@ public class ProductService {
             product.setListed(productDto.getQuantity() > 0);
 
             // Save the Product entity
-            return productRepository.save(product);
+            product = productRepository.save(product);
+            response.put("message", "Product created successfully");
+            response.put("product", product);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (EntityNotFoundException ex) {
-            throw new IllegalArgumentException(ex.getMessage());
+            response.put("message", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (Exception ex) {
-            throw new RuntimeException("Failed to create product. Please try again later.", ex);
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);    
         }
     }
+    private boolean isValidNumericValue(BigDecimal value) {
+        try {
+            if (value != null) {
+                new BigDecimal(value.toString()); // Attempt to create a BigDecimal from its string representation
+                return true; // If parsing succeeds, the value is numeric
+            } else {
+                return false; // Null values are not considered numeric
+            }
+        } catch (NumberFormatException ex) {
+            return false; // If parsing fails, the value is not numeric
+        }
+    }
+    
+    
+    private boolean isValidNumericValue(Integer value) {
+        try {
+            Integer.parseInt(String.valueOf(value)); // Attempt to parse the integer value as a string
+            return true; // If parsing succeeds, the value is a valid integer
+        } catch (NumberFormatException ex) {
+            return false; // If parsing fails, the value is not a valid integer
+        }
+    }
+    
+    
 
     public Product updateProduct(Integer productId, ProductDto productDto) {
         // Retrieve the existing Product entity from the database

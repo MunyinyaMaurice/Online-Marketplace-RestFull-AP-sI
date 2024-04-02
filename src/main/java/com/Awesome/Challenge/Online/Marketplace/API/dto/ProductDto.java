@@ -6,7 +6,12 @@ package com.Awesome.Challenge.Online.Marketplace.API.dto;
 //import com.Awesome.Challenge.Online.Marketplace.API.model.User;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,25 +28,25 @@ import java.util.List;
 @AllArgsConstructor
 public class ProductDto {
         @Valid
-        @NotNull(message = "product name shouldn't be null")
-        private String name;
+        @NotBlank(message = "Product name shouldn't be blank")
+    private String name;
 
-        @NotNull(message = "product description shouldn't be null")
-        private String description;
+    @NotNull(message = "Product description shouldn't be null")
+    private String description;
 
-        @NotNull(message = "product price shouldn't be null")
-        private BigDecimal price;
+     @NotNull(message = "Product price shouldn't be null")
+    @DecimalMin(value = "0.01", inclusive = false, message = "Price must be greater than zero")
+    private BigDecimal price;
 
-        @NotNull(message = "product quantity shouldn't be null")
-        private Integer quantity;
+    @Positive 
+    private Integer quantity;
 
-        @NotNull(message = "category ID shouldn't be null")
-        private Integer categoryId;
-
+    @NotNull(message = "Category ID shouldn't be null")
+    private Integer categoryId;
         // @NotNull(message = "seller ID shouldn't be null")
         private Integer sellerId;
 
-        private Date dateCreated;
+        // private Date dateCreated;
 
-        private Date lastUpdated;
+        // private Date lastUpdated;
 }

@@ -3,10 +3,12 @@ package com.Awesome.Challenge.Online.Marketplace.API.controller;
 import com.Awesome.Challenge.Online.Marketplace.API.dto.ProductDto;
 import com.Awesome.Challenge.Online.Marketplace.API.dto.ProductWithImageDataDto;
 import com.Awesome.Challenge.Online.Marketplace.API.model.Product;
+import com.Awesome.Challenge.Online.Marketplace.API.secuirity.auth.RegisterRequest;
 import com.Awesome.Challenge.Online.Marketplace.API.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 
 import java.util.HashMap;
@@ -49,28 +52,22 @@ public class ProductController {
     )
     // Create a new product
     @PostMapping("/create_product")
-    public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            List<String> errors = bindingResult.getAllErrors().stream()
-                    .map(ObjectError::getDefaultMessage)
-                    .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(errors); // Return a list of error messages
-        } else {
-            Product product = productService.createProduct(productDto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(product); // Return the created product
-        }
+public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto, BindingResult bindingResult) {
+    if (bindingResult.hasErrors()) {
+        Map<String, Object> response = new HashMap<>();
+        Map<String, String> errors = bindingResult.getFieldErrors().stream()
+                .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
+        response.put("errors", errors);
+        response.put("message", "Validation failed");
+        return ResponseEntity.badRequest().body(response); // Return a 400 status code for validation errors
+    } else {
+        // Call ProductService to create product
+        ResponseEntity<Map<String,Object>> responseEntity = productService.createProduct(productDto, bindingResult);
+        
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
-    // Retrieve all products
-    @GetMapping("/All_products")
-    public ResponseEntity<List<Product>> getAllProducts(){
-        try {
-        List<Product> products = productService.getALlProduct();
-        return ResponseEntity.ok(products);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Failed to retrieve All_products.");
-      }
-    }
+}
+  
 
     // Get product and it's images by product ID
     @GetMapping("/image/{productId}")
