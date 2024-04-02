@@ -68,7 +68,22 @@ public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 }
-  
+
+    @PutMapping("/update/{productId}")
+    public ResponseEntity<Map<String,Object>> updateProduct(@PathVariable Integer productId, @Valid @RequestBody ProductUpdateDto productDto, BindingResult bindingResult) {
+        
+            if (bindingResult.hasErrors()) {
+                Map<String, Object> response = new HashMap<>();
+                Map<String, String> errors = bindingResult.getFieldErrors().stream()
+                        .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
+                response.put("errors", errors);
+                response.put("message", "Validation failed");
+                return ResponseEntity.badRequest().body(response); // Return a 400 status code for validation errors
+            } else {
+                ResponseEntity<Map<String,Object>> updatedProduct = productService.updateProduct(productId, productDto,bindingResult);
+            return ResponseEntity.status(updatedProduct.getStatusCode()).body(updatedProduct.getBody());
+    }
+}
 
     // Get product and it's images by product ID
     @GetMapping("/image/{productId}")
@@ -80,16 +95,7 @@ public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to retrieve product image data.");
         }
     }
-    @PutMapping("/update/{productId}")
-    public ResponseEntity<?> updateProduct(@PathVariable Integer productId, @RequestBody ProductUpdateDto productDto) {
-        try {
-            ResponseEntity<?> updatedProduct = productService.updateProduct(productId, productDto);
-            return ResponseEntity.ok(updatedProduct);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                 .body("{\"error\": \"" + e.getMessage() + "\"}");
-        }
-    }
+
 
     @GetMapping("/{productId}")
     public ResponseEntity<Product> getProductById(@PathVariable Integer productId) {
