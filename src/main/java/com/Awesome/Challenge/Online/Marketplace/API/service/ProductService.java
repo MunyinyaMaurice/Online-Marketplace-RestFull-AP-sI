@@ -254,13 +254,17 @@ public class ProductService {
     }
     public ResponseEntity<?> getProductWithImageData(Integer productId) {
         Map<String, Object> response = new HashMap<>();
-        try {
-            // Check if the product exists
-            if (productRepository.existsById(productId)) {
-                // Retrieve the product from the database
-                Product product = productRepository.findById(productId)
+         // Check if the product exists
+         if (!productRepository.existsById(productId)) {
+            throw new EntityNotFoundException("Product does not exist with ID: " + productId);
+            // return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            // response.put("error", "Product does not exist with ID: " + productId);
+            // return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+
+          } try {
+           
+            Product product = productRepository.findById(productId)
                         .orElseThrow(() -> new EntityNotFoundException("Product not found with ID: " + productId));
-                
                 // Retrieve the associated image data
                 List<ProductImage> productImages = productImageRepository.findByProductId(productId);
         
@@ -279,17 +283,19 @@ public class ProductService {
                 productWithImageDataDto.setImageDataList(imageDataList);
                 response.put("productWithImages", productWithImageDataDto);
                 return ResponseEntity.ok(response);
-            } else {
-                throw new EntityNotFoundException("Product not found with ID: " + productId);
-            }
+            // } else {
+            //     throw new EntityNotFoundException("Product not found with ID: " + productId);
+            // }
         } catch (EntityNotFoundException ex) {
-            response.put("message", ex.getMessage());
+            response.put("error", ex.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (Exception ex) {
-            response.put("message", ex.getMessage());
+            response.put("error", ex.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);    
         }
     }
+
+    
     // This method Delete a product by its ID
     
 public void deleteProductById(Integer productId) {
