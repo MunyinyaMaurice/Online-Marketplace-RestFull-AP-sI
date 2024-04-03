@@ -1,5 +1,6 @@
 package com.Awesome.Challenge.Online.Marketplace.API.service;
 
+import com.Awesome.Challenge.Online.Marketplace.API.dto.UserDetailsDTO;
 import com.Awesome.Challenge.Online.Marketplace.API.exception.UnauthorizedAccessException;
 import com.Awesome.Challenge.Online.Marketplace.API.model.Role;
 import com.Awesome.Challenge.Online.Marketplace.API.model.User;
@@ -22,8 +23,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     // Method to list all users
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserDetailsDTO> getAllUserDetails() {
+        return userRepository.getAllUserDetails();
     }
 
     // Method to update user details

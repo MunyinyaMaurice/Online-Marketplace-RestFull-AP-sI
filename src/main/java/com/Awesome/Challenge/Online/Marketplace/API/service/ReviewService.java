@@ -7,47 +7,55 @@ import com.Awesome.Challenge.Online.Marketplace.API.model.Review;
 import com.Awesome.Challenge.Online.Marketplace.API.model.User;
 import com.Awesome.Challenge.Online.Marketplace.API.repository.ProductRepository;
 import com.Awesome.Challenge.Online.Marketplace.API.repository.ReviewRepository;
-import com.Awesome.Challenge.Online.Marketplace.API.repository.UserRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.*;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import java.util.List;
 
 import static com.Awesome.Challenge.Online.Marketplace.API.secuirity.config.ApplicationConfig.getCurrentUser;
-import static com.Awesome.Challenge.Online.Marketplace.API.secuirity.config.ApplicationConfig.getCurrentUserId;
 
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
-    @Autowired
     private final ReviewRepository reviewRepository;
-
-    @Autowired
-    private  final UserRepository userRepository;
-
-    @Autowired
     private final ProductRepository productRepository;
 
-    public Review submitReview(ReviewDto reviewDto){
-
+    public ResponseEntity<Map<String, Object>> submitReview(Integer productId ,@Valid ReviewDto reviewDto, BindingResult bindingResult){
+        Map<String, Object> response = new HashMap<>();
+        try {
         User user= getCurrentUser();
-        Integer productId = reviewDto.getProductId();
-
-
         // Check if the Product with the provided Id exists
         Product product  = productRepository.findById(productId)
-                .orElseThrow(()->new RuntimeException("Product not found with : "+ productId));
+                .orElseThrow(()->new EntityNotFoundException("Product not found with : "+ productId));
 
         Review review = Review.builder()
                 .user(user)
                 .product(product)
                 .rating(reviewDto.getRating())
                 .comment(reviewDto.getComment())
-                .createdAt(reviewDto.getCreatedAt())
-                .updatedAt(reviewDto.getUpdatedAt())
                         .build();
-        return reviewRepository.save(review);
+        // return reviewRepository.save(review);
+        response.put("productReview", reviewRepository.save(review));
+        return ResponseEntity.ok(response);
+    }
+        catch (EntityNotFoundException e){
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        catch (Exception e){
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+
     }
     public List<Review> getProductReviews(Integer productId) {
         // Retrieve reviews associated with the product ID

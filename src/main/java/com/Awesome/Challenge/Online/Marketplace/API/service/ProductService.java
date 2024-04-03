@@ -155,7 +155,7 @@ public class ProductService {
             } try {
                 // Retrieve the existing Product entity from the database
                 Product existingProduct = productRepository.findById(productId)
-                        .orElseThrow(() -> new RuntimeException("Product not found for id: " + productId));
+                        .orElseThrow(() -> new EntityNotFoundException("Product not found for id: " + productId));
         
                 // Update the fields of the existing Product entity with the new values from the ProductDto
         
@@ -230,7 +230,8 @@ public class ProductService {
         } catch (EntityNotFoundException ex) {
             response.put("message", ex.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        } catch (Exception ex) {
+        } 
+        catch (Exception ex) {
         response.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);    
         }
@@ -257,10 +258,6 @@ public class ProductService {
          // Check if the product exists
          if (!productRepository.existsById(productId)) {
             throw new EntityNotFoundException("Product does not exist with ID: " + productId);
-            // return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-            // response.put("error", "Product does not exist with ID: " + productId);
-            // return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-
           } try {
            
             Product product = productRepository.findById(productId)
@@ -298,27 +295,17 @@ public class ProductService {
     
     // This method Delete a product by its ID
     
-public void deleteProductById(Integer productId) {
-    if (productId == null) {
-        throw new IllegalArgumentException("Product ID cannot be null.");
-    }
-
-    try {
-        // Attempt to retrieve the product by ID
+    public void deleteProductById(Integer productId) {
+        if (productId == null) {
+            throw new IllegalArgumentException("Product ID cannot be null.");
+        }
+    
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new NotFoundException("Product not found for ID: " + productId));
-
-        // Delete the product
+                .orElseThrow(() -> new EntityNotFoundException("Product not found for ID: " + productId));
+    
         productRepository.delete(product);
-    } catch (EmptyResultDataAccessException ex) {
-        // Handle case where product with given ID does not exist
-        throw new NotFoundException("Product not found for ID: " + productId);
-    } catch (Exception ex) {
-        // Handle other unexpected exceptions
-        ex.printStackTrace(); // Print stack trace for debugging
-        throw new RuntimeException("Failed to delete product. Please try again later.");
     }
-    }
+    
     // This method Get all method
     public List<Product> getALlProduct() {
         return productRepository.findAll();

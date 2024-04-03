@@ -14,11 +14,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.Awesome.Challenge.Online.Marketplace.API.secuirity.config.ApplicationConfig.getCurrentUserId;
@@ -48,20 +48,19 @@ public class OrderController {
 
 //This end point help any user who is logged in to order any product listed
     @PostMapping("/press_order")
-    public ResponseEntity<?> submitOrder(@Valid @RequestBody OrderDto orderDto, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            List<String> errors = bindingResult.getAllErrors().stream()
-                    .map(ObjectError::getDefaultMessage)
-                    .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(errors);
-        } else {
-            try {
-                ResponseEntity<?> orderResponse = orderService.pressOrder(orderDto);
-                return new ResponseEntity<>(orderResponse.getBody(), HttpStatus.CREATED);
-            } catch (RuntimeException e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-            }
-        }
+    public ResponseEntity<?> submitOrder(@RequestParam Integer productId , @Valid @RequestBody OrderDto orderDto, BindingResult bindingResult) {
+            if (bindingResult.hasErrors()) {
+        Map<String, Object> response = new HashMap<>();
+        Map<String, String> errors = bindingResult.getFieldErrors().stream()
+                .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
+        response.put("errors", errors);
+        response.put("message", "Validation failed");
+        return ResponseEntity.badRequest().body(response); // Return a 400 status code for validation errors
+    } else {
+        // Call ProductService to create product
+        ResponseEntity<?> responseEntity = orderService.placeOrder(productId,orderDto, bindingResult);
+        return responseEntity;
+        }   
     }
 
     // This end point provide the list all orders associeted to product seller and list of all to admin
@@ -84,28 +83,25 @@ public class OrderController {
 
     // This end point is for seller and admin to update placed order status
     @PutMapping("/update/{orderId}")
-    public ResponseEntity<?> updateOrderStatus(@PathVariable Integer orderId, @RequestBody Map<String, String> requestBody) {
-        try {
-            if (orderId == null) {
-                return ResponseEntity.badRequest().body("Order ID cannot be null.");
+    public ResponseEntity<?> updateOrderStatus(@PathVariable Integer orderId, @RequestBody Map<String, String> requestBody, BindingResult bindingResult) {
+        
+            if (bindingResult.hasErrors()) {
+                Map<String, String> errors = bindingResult.getFieldErrors().stream()
+                        .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
+                return ResponseEntity.badRequest().body(errors);
             }
-
-            String orderStatus = requestBody.get("orderStatus");
-
-            // Convert the orderStatus string to OrderStatus enum
-            OrderStatus newStatus = OrderStatus.valueOf(orderStatus);
-
-            // Update the order status
-            Order updatedOrder = orderService.updateOrderStatus(orderId, newStatus);
-
-            return ResponseEntity.ok(updatedOrder);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Invalid order status value.");
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update order status.");
-        }
+            if (bindingResult.hasErrors()) {
+                Map<String, Object> response = new HashMap<>();
+                Map<String, String> errors = bindingResult.getFieldErrors().stream()
+                        .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
+                response.put("errors", errors);
+                response.put("message", "Validation failed");
+                return ResponseEntity.badRequest().body(response); // Return a 400 status code for validation errors
+            } else {
+                ResponseEntity<?> responseEntity = orderService.updateOrderStatus(orderId, requestBody, bindingResult);
+                return responseEntity;
+       
     }
+}
 
 }

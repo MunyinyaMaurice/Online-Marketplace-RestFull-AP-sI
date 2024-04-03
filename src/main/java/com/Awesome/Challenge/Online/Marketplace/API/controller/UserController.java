@@ -1,5 +1,6 @@
 package com.Awesome.Challenge.Online.Marketplace.API.controller;
 
+import com.Awesome.Challenge.Online.Marketplace.API.dto.UserDetailsDTO;
 import com.Awesome.Challenge.Online.Marketplace.API.exception.UnauthorizedAccessException;
 import com.Awesome.Challenge.Online.Marketplace.API.model.Role;
 import com.Awesome.Challenge.Online.Marketplace.API.model.User;
@@ -34,12 +35,12 @@ public class UserController {
     )
 
     @GetMapping("/all_users")
-    public ResponseEntity<List<User>> getAllUsers() {
+    public List<UserDetailsDTO> getAllUsers() {
         try {
-            List<User> users = userService.getAllUsers();
-            return ResponseEntity.ok(users);
+            List<UserDetailsDTO> users = userService.getAllUserDetails();
+            return ResponseEntity.ok(users).getBody();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return List.of();
         }
     }
 

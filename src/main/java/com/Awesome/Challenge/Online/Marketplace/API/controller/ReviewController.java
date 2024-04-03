@@ -11,11 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import com.Awesome.Challenge.Online.Marketplace.API.model.Review;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -42,15 +43,17 @@ public class ReviewController {
 
     // Endpoint for submitting a review
     @PostMapping("/submitReview")
-    public ResponseEntity<?> submitReview(@Valid @RequestBody ReviewDto reviewDto, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            List<String> errors = bindingResult.getAllErrors().stream()
-                    .map(ObjectError::getDefaultMessage)
-                    .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(errors);
-        } else {
-            Review review = reviewService.submitReview(reviewDto);
-            return new ResponseEntity<>(review, HttpStatus.CREATED);
+    public ResponseEntity<Map<String, Object>> submitReview(@RequestParam Integer productId, @Valid @RequestBody ReviewDto reviewDto, BindingResult bindingResult) {
+       if (bindingResult.hasErrors()) {
+        Map<String, Object> response = new HashMap<>();
+        Map<String, String> errors = bindingResult.getFieldErrors().stream()
+                .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
+        response.put("errors", errors);
+        response.put("message", "Validation failed");
+        return ResponseEntity.badRequest().body(response); // Return a 400 status code for validation errors
+    } else {
+        ResponseEntity<Map<String, Object>> responseEntity= reviewService.submitReview(productId,reviewDto,bindingResult);
+            return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
         }
     }
 

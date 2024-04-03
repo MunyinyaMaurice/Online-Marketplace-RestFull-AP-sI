@@ -85,22 +85,23 @@ public class ProductImageController {
     }
 
 
-    @GetMapping("/products/{productId}")
-//    @Hidden
-    public ResponseEntity<?> getProductWithImages(@PathVariable Integer productId) {
-        try {
-            // Retrieve the product with associated images
-            Product product = productImageService.getProductWithImages(productId);
+//     @GetMapping("/products/{productId}")
+// //    @Hidden
+//     public ResponseEntity<?> getProductWithImages(@PathVariable Integer productId) {
+//         try {
+//             // Retrieve the product with associated images
+//             Product product = productImageService.getProductWithImages(productId);
 
-            // Return the product with associated images
-            return ResponseEntity.ok(product);
-        } catch (RuntimeException e) {
-            // Handle exceptions and return an appropriate response
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
+//             // Return the product with associated images
+//             return ResponseEntity.ok(product);
+//         } catch (RuntimeException e) {
+//             // Handle exceptions and return an appropriate response
+//             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+//         }
+//     }
 
 // This End point delete product image by its id
+    @Operation(description = "Delete product image")
     @DeleteMapping("/del/{imageId}")
     public ResponseEntity<?> deleteImage(@PathVariable Integer imageId) {
         try {

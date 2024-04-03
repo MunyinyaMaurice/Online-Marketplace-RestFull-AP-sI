@@ -71,9 +71,10 @@ public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto
 
     @PutMapping("/update/{productId}")
     public ResponseEntity<Map<String,Object>> updateProduct(@PathVariable Integer productId, @Valid @RequestBody ProductUpdateDto productDto, BindingResult bindingResult) {
-        
+        Map<String, Object> response = new HashMap<>();
+    
             if (bindingResult.hasErrors()) {
-                Map<String, Object> response = new HashMap<>();
+                // Handling validation errors
                 Map<String, String> errors = bindingResult.getFieldErrors().stream()
                         .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
                 response.put("errors", errors);
@@ -84,7 +85,6 @@ public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto
             return ResponseEntity.status(updatedProduct.getStatusCode()).body(updatedProduct.getBody());
     }
 }
-
     // Get product and it's images by product ID
     @GetMapping("/image/{productId}")
     public ResponseEntity<?> getProductImageData( @PathVariable Integer productId) {
@@ -116,10 +116,20 @@ public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto
     }
     
     @DeleteMapping("/del/{productId}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Integer productId) {
+public ResponseEntity<?> deleteProduct(@PathVariable Integer productId) {
+    Map<String, Object> response = new HashMap<>();
+    try {
         productService.deleteProductById(productId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.noContent().build(); // Return 204 No Content for successful deletion
+    } catch (EntityNotFoundException ex) {
+        response.put("error", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response); // Return 404 Not Found if product not found
+    } catch (Exception ex) {
+        response.put("error", "Failed to delete product. Please try again later.");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response); // Return 500 Internal Server Error for other exceptions
     }
+}
+
     // Endpoint to get all Not listed product
     @GetMapping("/notListed")
     public ResponseEntity<List<Product>> getNotListedProducts() {

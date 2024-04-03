@@ -45,6 +45,7 @@ public class SecurityConfiguration {
             "/api/l2/order/press_order",
             "/api/l2/reviews/submitReview",
             "/api/l2/users/update/{userId}",
+            "/api/l1/buyer"
     };
     private static final String[] ADMIN_SELLER_LIST_URL = {
             "/api/l2/order/orders_list",
