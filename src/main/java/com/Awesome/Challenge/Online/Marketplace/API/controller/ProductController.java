@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 //import static com.sun.org.apache.xalan.internal.xsltc.compiler.sym.error;
 
 @RestController
-@RequestMapping("/api/l3/product")
+@RequestMapping("/api/v2/product")
 @RequiredArgsConstructor
 @Tag(name = "Product management")
 
@@ -69,7 +69,7 @@ public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto
     }
 }
 
-    @PutMapping("/update/{productId}")
+    @PutMapping("/{productId}")
     public ResponseEntity<Map<String,Object>> updateProduct(@PathVariable Integer productId, @Valid @RequestBody ProductUpdateDto productDto, BindingResult bindingResult) {
         Map<String, Object> response = new HashMap<>();
     
@@ -86,7 +86,7 @@ public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto
     }
 }
     // Get product and it's images by product ID
-    @GetMapping("/image/{productId}")
+    @GetMapping("/images/{productId}")
     public ResponseEntity<?> getProductImageData( @PathVariable Integer productId) {
         try {
             ResponseEntity<?> productWithImageDataDto = productService.getProductWithImageData(productId);
@@ -115,7 +115,7 @@ public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto
         }
     }
     
-    @DeleteMapping("/del/{productId}")
+    @DeleteMapping("/{productId}")
 public ResponseEntity<?> deleteProduct(@PathVariable Integer productId) {
     Map<String, Object> response = new HashMap<>();
     try {

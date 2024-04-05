@@ -26,9 +26,9 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @RequiredArgsConstructor
 @EnableMethodSecurity
 public class SecurityConfiguration {
-    private static final String[] WHITE_LIST_URL = {"/api/v1/auth/**",
-            "/api/l1/search/{searchParam}",
-            "/api/l1/listed",
+    private static final String[] WHITE_LIST_URL = {"/api/v2/auth/**",
+            "/api/v2/products/listed",
+            "/api/v2/products/{searchParam}",
             //LIST OF AUTHORIZED SWAGGER URLs
             "/v2/api-docs",
             "/v3/api-docs",
@@ -42,36 +42,33 @@ public class SecurityConfiguration {
             "/swagger-ui.html"
             };
     private static final String[] LIST_FOR_LOGGED_IN_URL = {
-            "/api/l2/order/press_order",
-            "/api/l2/reviews/submitReview",
-            "/api/l2/users/update/{userId}",
-            "/api/l1/buyer"
+        "/api/v2/order/submit_order",
+        "/api/v2/reviews/submitReview",
+        "/api/v2/users/{userId}",
+        "/api/v2/products/ordered",
     };
     private static final String[] ADMIN_SELLER_LIST_URL = {
-            "/api/l2/order/orders_list",
-            "/api/l2/order/update/{orderId}",
-            "/api/l2/reviews/product/{productId}",
-            "/api/l2/reviews/product/{productId}/average-rating",
-            "/api/l3/product/create_product",
-            "/api/l3/images/products/{productId}"
+           
+"/api/v2/order/received",
+"/api/v2/order/{orderId}",
+"/api/v2/reviews/{productId}",
+"/api/v2/reviews/average-rating/{productId}",
+"/api/v2/product/create_product",
+"/api/v2/images/upload/{productId}",
+"/api/v2/images/{imageId}",
     };
     private static final String[] ADMIN_LIST_URL = {
-            "/api/l3/category/createCategory",
-            "/api/l3/product/All_products",
-            "/api/l3/product/image/{productId}",
-            "/api/l3/product/update/{productId}",
-            "/api/l3/product/del/{productId}",
-            "/api/l3/product/notListed",
-            "/api/l3/product/sortedByRating",
-            "/api/l3/product/highRated",
-            "/api/l3/product/popular",
-            "/api/l3/images/upload/{productId}",
-            "/api/l3/images/del/{imageId}",
-            "/api/l3/category/all_list",
-            "/api/l3/category/update/{categoryId}",
-            "/api/l3/category/del/{categoryId}",
-            "/api/l2/users/all_users",
-            "/api/l2/users/updateRole/{userIdToUpdate}"
+        "/api/v2/category/**",
+        "/api/v2/product/All_products",
+        "/api/v2/product/images/{productId}",
+        "/api/v2/product/{productId}",
+        "/api/v2/product/{productId}",
+        "/api/v2/product/notListed",
+        "/api/v2/product/sortedByRating",
+        "/api/v2/product/highRated",
+        "/api/v2/product/popular",
+        "/api/v2/users/all_users",
+        "/api/v2/users/{userIdToUpdate}",
 
     };
 //    private static final String[]
@@ -106,7 +103,7 @@ public class SecurityConfiguration {
 
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .logout(logout -> logout.logoutUrl("/api/v1/auth/logout")
+                .logout(logout -> logout.logoutUrl("/api/v2/auth/logout")
                 .addLogoutHandler(logoutHandler)
                 .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext())
                 );

@@ -56,7 +56,7 @@ public class CategoryController {
         }
     }
     // Endpoint to update an existing category
-    @PutMapping("/update/{categoryId}")
+    @PutMapping("/{categoryId}")
     public ResponseEntity<?> updateCategory(@PathVariable Integer categoryId, @Valid @RequestBody CategoryDto categoryDto) {
         try {
             Category updatedCategory = categoryService.updateCategory(categoryId, categoryDto);
@@ -71,7 +71,7 @@ public class CategoryController {
     }
 
     // Endpoint to delete an existing category
-    @DeleteMapping("/del/{categoryId}")
+    @DeleteMapping("/{categoryId}")
     public ResponseEntity<?> deleteCategory(@PathVariable Integer categoryId) {
         try {
             categoryService.deleteCategory(categoryId);

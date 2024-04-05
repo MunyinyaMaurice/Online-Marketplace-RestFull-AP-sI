@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/l2/reviews")
+@RequestMapping("/api/v2/reviews")
 @Tag(name = "Review management")
 public class ReviewController {
     private final ReviewService reviewService;
@@ -59,14 +59,14 @@ public class ReviewController {
 
 
     // Endpoint for retrieving reviews for a product
-    @GetMapping("/product/{productId}")
+    @GetMapping("/{productId}")
     public ResponseEntity<List<Review>> getProductReviews(@PathVariable Integer productId) {
         List<Review> reviews = reviewService.getProductReviews(productId);
         return ResponseEntity.ok(reviews);
     }
 
     // Endpoint for calculating average rating of a product
-    @GetMapping("/product/{productId}/average-rating")
+    @GetMapping("/average-rating/{productId}")
     public ResponseEntity<Double> getProductAverageRating(@PathVariable Integer productId) {
         Double averageRating = reviewService.getProductAverageRating(productId);
         return ResponseEntity.ok(averageRating);

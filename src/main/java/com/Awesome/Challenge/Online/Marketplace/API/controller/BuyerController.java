@@ -21,7 +21,7 @@ import java.util.*;
 
 
 @RestController
-@RequestMapping("/api/l1/buyer")
+@RequestMapping("/api/v2/products")
 @RequiredArgsConstructor
 @Tag(name = "Open End Point for All users")
 public class BuyerController {

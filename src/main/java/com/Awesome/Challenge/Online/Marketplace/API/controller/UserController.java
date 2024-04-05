@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/l2/users")
+@RequestMapping("/api/v2/users")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -44,7 +44,7 @@ public class UserController {
         }
     }
 
-    @PutMapping("/update/{userId}")
+    @PutMapping("/{userId}")
     public ResponseEntity<?> updateUser( @RequestBody @Valid RegisterRequest userDto, BindingResult bindingResult) {
         try {
             if (bindingResult.hasErrors()) {
@@ -64,7 +64,7 @@ public class UserController {
         }
     }
 
-    @PutMapping("/updateRole/{userIdToUpdate}")
+    @PutMapping("/{userIdToUpdate}")
     public ResponseEntity<?> updateRoleIfAdmin( @PathVariable Integer userIdToUpdate,  @RequestBody Map<String, String> requestBody) {
         try {
             String newRoles = requestBody.get("role");

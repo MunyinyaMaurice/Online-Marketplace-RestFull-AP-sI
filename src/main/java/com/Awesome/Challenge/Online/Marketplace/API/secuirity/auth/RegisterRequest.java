@@ -23,6 +23,8 @@ public class RegisterRequest {
     private String lastName;
     @NotNull @NotBlank
     @Email
+    @NotNull @NotBlank
+    @Email
     private String email;
     @NotNull @NotBlank
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*[!@#$%^&*()-+=]).{6,14}$",

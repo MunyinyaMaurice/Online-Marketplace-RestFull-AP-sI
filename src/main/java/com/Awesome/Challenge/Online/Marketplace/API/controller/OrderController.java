@@ -25,7 +25,7 @@ import static com.Awesome.Challenge.Online.Marketplace.API.secuirity.config.Appl
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/l2/order")
+@RequestMapping("/api/v2/order")
 @Tag(name = "Order management")
 public class OrderController {
 
@@ -47,7 +47,7 @@ public class OrderController {
     )
 
 //This end point help any user who is logged in to order any product listed
-    @PostMapping("/press_order")
+    @PostMapping("/submit_order")
     public ResponseEntity<?> submitOrder(@RequestParam Integer productId , @Valid @RequestBody OrderDto orderDto, BindingResult bindingResult) {
             if (bindingResult.hasErrors()) {
         Map<String, Object> response = new HashMap<>();
@@ -64,7 +64,7 @@ public class OrderController {
     }
 
     // This end point provide the list all orders associeted to product seller and list of all to admin
-    @GetMapping("/orders_list")
+    @GetMapping("/received")
     public ResponseEntity<?> getOrdersForCurrentUser() {
         Integer userId = getCurrentUserId();
         if (userId == null) {
@@ -82,7 +82,7 @@ public class OrderController {
     }
 
     // This end point is for seller and admin to update placed order status
-    @PutMapping("/update/{orderId}")
+    @PutMapping("/{orderId}")
     public ResponseEntity<?> updateOrderStatus(@PathVariable Integer orderId, @RequestBody Map<String, String> requestBody, BindingResult bindingResult) {
         
             if (bindingResult.hasErrors()) {
