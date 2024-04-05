@@ -32,8 +32,8 @@ public class OrderController {
     private final OrderService orderService;
 
     @Operation(
+        summary = "Submit a new order.",
             description = "Endpoint to submitting a new order.",
-            summary = "Submit a new order.",
             responses = {
                     @ApiResponse(
                             description = "order submitted successfully.",
@@ -64,6 +64,7 @@ public class OrderController {
     }
 
     // This end point provide the list all orders associeted to product seller and list of all to admin
+    @Operation(summary = "Get list of ordered products associated to your account.", description = "This end point provide the list all orders associeted to product seller and admin has that access.")
     @GetMapping("/received")
     public ResponseEntity<?> getOrdersForCurrentUser() {
         Integer userId = getCurrentUserId();
@@ -82,6 +83,7 @@ public class OrderController {
     }
 
     // This end point is for seller and admin to update placed order status
+    @Operation(summary = "Update order status from PENDING to [CONFIRMED, CANCELLED].", description = "This end point is for seller and admin to update the status of ordered product.")
     @PutMapping("/{orderId}")
     public ResponseEntity<?> updateOrderStatus(@PathVariable Integer orderId, @RequestBody Map<String, String> requestBody, BindingResult bindingResult) {
         

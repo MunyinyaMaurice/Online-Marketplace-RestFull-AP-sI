@@ -28,32 +28,22 @@ public class AuthenticationController {
     private final AuthenticationService service;
 
     @Operation(
-            description = "Create a new user.",
-            summary = "Endpoint to create a new user.",
-            responses = {
-                    @ApiResponse(
-                            description = "User created successfully.",
-                            responseCode = "200"
-                    ),
-                    @ApiResponse(
-                            description = "Unauthorized / Invalid Token",
-                            responseCode = "403"
-                    )
-            }
+            description = "Endpoint to create a new user.",
+            summary = "Create a new user."
     )
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request, BindingResult bindingResult) {
         return service.register(request, bindingResult);
     }
-
+    
     @PostMapping("/authenticate")
-    @Operation(description = "Authenticate a user and return a JWT token.")
+    @Operation(summary = "Authenticate a user.",description = "Authenticate a user and return a JWT token.")
     public ResponseEntity<?> authenticate(@Valid @RequestBody AuthenticationRequest request, BindingResult bindingResult) {
         return service.authenticate(request, bindingResult);
     }
 
     @PostMapping("/refresh-token")
-    @Operation(description = "Refresh a JWT token.")
+    @Operation(summary = "Refresh a JWT token.",description = "Get Refresh a JWT token for logged in user which last for 7 days.")
     public void refreshToken(
             HttpServletRequest request,
             HttpServletResponse response

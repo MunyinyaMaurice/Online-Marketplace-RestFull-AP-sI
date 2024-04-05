@@ -33,7 +33,7 @@ public class BuyerController {
 
    
     // This end point is for any client and it display the list of available product which has quantity > 0
-    @Operation(summary = "Listed product.", description = "Listed product.")
+    @Operation(summary = "Listed product.", description = "This end point is for any client and it display the list of available product which has quantity > 0")
     @GetMapping("/listed")
     public ResponseEntity<List<Product>> getListedProducts() {
         List<Product> listedProducts = productService.getListedProducts();
@@ -41,7 +41,7 @@ public class BuyerController {
     }
 
     //This end point allow client to search for product from listed
-    @Operation(summary = "Search by product name")
+    @Operation(summary = "Search any product.", description = "This end point allow client to search for product by product name")
     @GetMapping("/{searchParam}")
     public List<Product> searchProducts(@PathVariable String searchParam) {
 
@@ -51,7 +51,7 @@ public class BuyerController {
             return null; // Consider returning an empty list instead of null for better practice
         }
     }
-    @Operation(summary = "List of ordered product.")
+    @Operation(summary = "List of ordered product.,", description = "This end point allow client to get the list of order their have made (Historical)")
     @GetMapping("/ordered")
     public ResponseEntity<?> orderedProducts() {
 

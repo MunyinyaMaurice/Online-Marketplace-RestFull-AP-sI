@@ -27,8 +27,8 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @Operation(
-            description = "Submit a new product review.",
-            summary = "Endpoint for submitting a new product review.",
+        summary = "Submit a new product review.",
+            description = "Endpoint for submitting a new product review.",        
             responses = {
                     @ApiResponse(
                             description = "Review submitted successfully.",
@@ -59,6 +59,7 @@ public class ReviewController {
 
 
     // Endpoint for retrieving reviews for a product
+    @Operation(summary = "Get reviews for a product.", description = "Endpoint for retrieving reviews for a product.")
     @GetMapping("/{productId}")
     public ResponseEntity<List<Review>> getProductReviews(@PathVariable Integer productId) {
         List<Review> reviews = reviewService.getProductReviews(productId);
@@ -66,6 +67,7 @@ public class ReviewController {
     }
 
     // Endpoint for calculating average rating of a product
+    @Operation(summary = "Get average rating for a product.", description = "Endpoint for calculating average rating of a product.")
     @GetMapping("/average-rating/{productId}")
     public ResponseEntity<Double> getProductAverageRating(@PathVariable Integer productId) {
         Double averageRating = reviewService.getProductAverageRating(productId);

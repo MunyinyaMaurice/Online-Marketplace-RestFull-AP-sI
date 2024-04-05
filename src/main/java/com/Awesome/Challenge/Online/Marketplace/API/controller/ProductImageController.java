@@ -32,9 +32,9 @@ public class ProductImageController {
         this.productImageService = productImageService;
     }
     @Operation(
-            description = "Upload new product image",
-            summary = "Endpoint to upload a new image by proving the product id to be associated to.",
-            responses = {
+        summary = "Upload new product image [jpeg, jpg, and gif] files are allowed",
+            description = "Endpoint to upload a new image by proving the product id to be associated to.",
+                responses = {
                     @ApiResponse(
                             description = "Image uploaded successfully.",
                             responseCode = "200"
@@ -46,6 +46,7 @@ public class ProductImageController {
             }
     )
     //This End point helps to upload images for specified product && store them in DB as bytes "MEDIUMBLOB"
+    
     @PostMapping("/upload/{productId}")
     public ResponseEntity<?> uploadImage(@PathVariable Integer productId,
                                          @RequestParam("file") MultipartFile file) {
@@ -76,7 +77,7 @@ public class ProductImageController {
         }
 
     }
-    // This End point helper checks if the file extension is one of the allowed image types (jpeg, jpg, gif).
+    // This method helper checks if the file extension is one of the allowed image types (jpeg, jpg, gif).
     private boolean isImageFile(String fileName) {
         String extension = StringUtils.getFilenameExtension(fileName);
         return extension != null && (extension.equalsIgnoreCase("jpeg") ||
@@ -84,7 +85,7 @@ public class ProductImageController {
                 extension.equalsIgnoreCase("gif"));
     }
 
-    @Operation(description = "Delete product image")
+    @Operation(summary = "Delete product image",description = "Delete product image by providing image id")
     @DeleteMapping("/{imageId}")
     public ResponseEntity<?> deleteImage(@PathVariable Integer imageId) {
         try {

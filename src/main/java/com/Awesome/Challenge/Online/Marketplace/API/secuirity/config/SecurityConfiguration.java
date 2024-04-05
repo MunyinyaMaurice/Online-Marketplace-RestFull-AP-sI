@@ -68,7 +68,7 @@ public class SecurityConfiguration {
         "/api/v2/product/highRated",
         "/api/v2/product/popular",
         "/api/v2/users/all_users",
-        "/api/v2/users/{userIdToUpdate}",
+        "/api/v2/users/{userIdToUpdateRole}",
 
     };
 //    private static final String[]

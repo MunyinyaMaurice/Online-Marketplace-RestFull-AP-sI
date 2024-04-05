@@ -68,7 +68,7 @@ public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 }
-
+    @Operation(summary = "Update Product attributes.", description = "Endpoint helps seller and admin to update an existing product.")
     @PutMapping("/{productId}")
     public ResponseEntity<Map<String,Object>> updateProduct(@PathVariable Integer productId, @Valid @RequestBody ProductUpdateDto productDto, BindingResult bindingResult) {
         Map<String, Object> response = new HashMap<>();
@@ -86,6 +86,7 @@ public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto
     }
 }
     // Get product and it's images by product ID
+    @Operation(summary = "Get product and it's images by product ID.", description = "Endpoint returns product and it's images by product ID.")
     @GetMapping("/images/{productId}")
     public ResponseEntity<?> getProductImageData( @PathVariable Integer productId) {
         try {
@@ -100,6 +101,9 @@ public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto
     }
 
 
+
+    // Get product by product ID
+    @Operation(summary = "Get product by product ID.", description = "Endpoint to get product info by product ID.")
     @GetMapping("/{productId}")
     
     public ResponseEntity<?> getProductById(@PathVariable Integer productId) {
@@ -114,7 +118,7 @@ public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
     }
-    
+    @Operation(summary = "Delete product.", description = "Endpoint to delete a product by product ID.")
     @DeleteMapping("/{productId}")
 public ResponseEntity<?> deleteProduct(@PathVariable Integer productId) {
     Map<String, Object> response = new HashMap<>();
@@ -131,6 +135,7 @@ public ResponseEntity<?> deleteProduct(@PathVariable Integer productId) {
 }
 
     // Endpoint to get all Not listed product
+    @Operation(summary = "Get all Not listed product.", description = "Endpoint return a list of product which has 0 as qantity.")
     @GetMapping("/notListed")
     public ResponseEntity<List<Product>> getNotListedProducts() {
         List<Product> listedProducts = productService.getNotListedProducts();
@@ -138,6 +143,7 @@ public ResponseEntity<?> deleteProduct(@PathVariable Integer productId) {
     }
 
     // Endpoint to get all listed products sorted by average rating
+    @Operation(summary = "Get all listed products sorted by average rating.", description = "Endpoint return a list of products sorted by average rating.")
     @GetMapping("/sortedByRating")
     public ResponseEntity<List<Product>> getProductsSortedByRating() {
         List<Product> products = productService.getProductsSortedByAverageRating();
@@ -145,6 +151,7 @@ public ResponseEntity<?> deleteProduct(@PathVariable Integer productId) {
     }
 
     // Endpoint to get all listed products with a minimum average rating
+    @Operation(summary = "Display all listed products with a minimum average rating.", description = "Endpoint to get all listed products with a minimum average rating.")
     @GetMapping("/highRated")
     public ResponseEntity<List<Product>> getHighRatedProducts() {
         List<Product> products = productService.getHighRatedProducts(4.0); // Example: Minimum rating of 4.0
@@ -152,6 +159,7 @@ public ResponseEntity<?> deleteProduct(@PathVariable Integer productId) {
     }
 
     // Endpoint to get all listed products sorted by total number of reviews
+    @Operation(summary = "Get all listed products sorted by total number of reviews.", description = "Endpoint to get all listed products sorted by total number of reviews.")
     @GetMapping("/popular")
     public ResponseEntity<List<Product>> getPopularProducts() {
         List<Product> products = productService.getPopularProducts();

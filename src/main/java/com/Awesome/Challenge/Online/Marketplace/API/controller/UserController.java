@@ -29,11 +29,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @Operation(
-            description = "List of all users.",
-            summary = "End point to get all users information"
-    )
-
+    @Operation(summary = "List of all users.",description = "Endpoint to get all users information. " )
     @GetMapping("/all_users")
     public List<UserDetailsDTO> getAllUsers() {
         try {
@@ -43,7 +39,7 @@ public class UserController {
             return List.of();
         }
     }
-
+    @Operation(summary = "Update user.",description = "Endpoint to allow user to update their information." )
     @PutMapping("/{userId}")
     public ResponseEntity<?> updateUser( @RequestBody @Valid RegisterRequest userDto, BindingResult bindingResult) {
         try {
@@ -63,8 +59,8 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update user.");
         }
     }
-
-    @PutMapping("/{userIdToUpdate}")
+    @Operation(summary = "Update user role.",description = "Endpoint to allow admin to update user role. " )
+    @PutMapping("/{userIdToUpdateRole}")
     public ResponseEntity<?> updateRoleIfAdmin( @PathVariable Integer userIdToUpdate,  @RequestBody Map<String, String> requestBody) {
         try {
             String newRoles = requestBody.get("role");

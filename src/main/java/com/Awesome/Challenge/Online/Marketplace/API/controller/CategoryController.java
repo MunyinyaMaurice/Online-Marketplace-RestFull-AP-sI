@@ -28,23 +28,10 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
-    @Operation(
-            description = "Endpoint to create a new category.",
-            summary = "Create a new category.",
-            responses = {
-                    @ApiResponse(
-                            description = "Category created successfully.",
-                            responseCode = "200"
-                    ),
-                    @ApiResponse(
-                            description = "Unauthorized / Invalid Token",
-                            responseCode = "403"
-                    )
-            }
-    )
-
     // This end point helps to handle HTTP POST requests for creating a new category
+    
     @PostMapping("/createCategory")
+    @Operation(summary = "Create a new category.", description = "Endpoint to create a new category.")
     public ResponseEntity<Category> createCategories(@RequestBody @Valid CategoryDto categoryDto) {
         try {
             Category category = categoryService.createCategory(categoryDto);
@@ -56,6 +43,7 @@ public class CategoryController {
         }
     }
     // Endpoint to update an existing category
+    @Operation(summary = "Update category.", description = "Endpoint to update an existing category.")
     @PutMapping("/{categoryId}")
     public ResponseEntity<?> updateCategory(@PathVariable Integer categoryId, @Valid @RequestBody CategoryDto categoryDto) {
         try {
@@ -71,6 +59,7 @@ public class CategoryController {
     }
 
     // Endpoint to delete an existing category
+    @Operation(summary = "Delete category.", description = "Endpoint to delete an existing category")
     @DeleteMapping("/{categoryId}")
     public ResponseEntity<?> deleteCategory(@PathVariable Integer categoryId) {
         try {
@@ -86,6 +75,7 @@ public class CategoryController {
     }
 
     // Endpoint to list all categories
+    @Operation(summary = "List of all category.", description = "Endpoint to list all categories.")
     @GetMapping("/all_list")
     public ResponseEntity<List<Category>> getAllCategories() {
         try {
