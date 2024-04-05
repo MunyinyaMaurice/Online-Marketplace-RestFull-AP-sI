@@ -16,14 +16,14 @@ import io.swagger.v3.oas.annotations.servers.Server;
                 contact = @Contact(
                         name = "Maurice Shema",
                         email = "munyinya13@gmail.com",
-                        url = "http://127.0.0.1:23991/api/l1/listed"
+                        url = "http://127.0.0.1:23991/api/v2/listed"
                 ),
                 description = "OpenApi documentation for Online-Marketplace-API Spring boot application",
                 title = "Online-Marketplace-API",
                 version = "1.0",
                 license = @License(
-                        name = "You can log-in as ADMIN by using this : 'Email: admin@user.com == Password: Admin123@'" +
-                                " after that you have access to authorize any other user through '\"/api/l2/users/updateRole/{userIdToUpdate}\",'  ",
+                        // name = "You can log-in as ADMIN by using this : 'Email: admin@user.com == Password: Admin123@'" +
+                        //         " after that you have access to authorize any other user through '\"/api/l2/users/updateRole/{userIdToUpdate}\",'  ",
 
                         url = "http://127.0.0.1:23991/api/l2/users/updateRole/{userIdToUpdate}"
                 )

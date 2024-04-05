@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/l3/category")
+@RequestMapping("/api/v2/category")
 @RequiredArgsConstructor
 @Tag(name = "Category Management")
 
