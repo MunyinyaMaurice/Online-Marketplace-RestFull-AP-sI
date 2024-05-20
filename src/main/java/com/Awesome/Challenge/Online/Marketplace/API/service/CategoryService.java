@@ -1,6 +1,5 @@
 package com.Awesome.Challenge.Online.Marketplace.API.service;
 
-//import com.Awesome.Challenge.Online.Marketplace.API.dto.CategoryDto;
 import com.Awesome.Challenge.Online.Marketplace.API.dto.CategoryDto;
 import com.Awesome.Challenge.Online.Marketplace.API.model.Category;
 import com.Awesome.Challenge.Online.Marketplace.API.repository.CategoryRepository;
@@ -13,10 +12,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class CategoryService {
-//    @Autowired
-    private final CategoryRepository categoryRepository;
 
-    // Service method to create a new category based on the provided category DTO
+    private final CategoryRepository categoryRepository;
     public Category createCategory(CategoryDto categoryDto) {
 
         try {
