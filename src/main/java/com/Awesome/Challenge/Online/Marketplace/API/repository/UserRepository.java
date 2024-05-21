@@ -14,7 +14,6 @@ public interface UserRepository extends JpaRepository<User,Integer> {
     
     @Query("SELECT new com.Awesome.Challenge.Online.Marketplace.API.dto.UserDetailsDTO(u.firstName, u.lastName, u.email, u.role) FROM User u")
 public List<UserDetailsDTO> getAllUserDetails();
+    
 
-
-    boolean existsByName(String firstName);
 }

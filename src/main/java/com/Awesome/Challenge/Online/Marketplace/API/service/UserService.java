@@ -1,7 +1,6 @@
 package com.Awesome.Challenge.Online.Marketplace.API.service;
 
 import com.Awesome.Challenge.Online.Marketplace.API.dto.UserDetailsDTO;
-import com.Awesome.Challenge.Online.Marketplace.API.exception.UnauthorizedAccessException;
 import com.Awesome.Challenge.Online.Marketplace.API.exceptionHandler.ApplicationException;
 import com.Awesome.Challenge.Online.Marketplace.API.exceptionHandler.ErrorCode;
 import com.Awesome.Challenge.Online.Marketplace.API.model.Role;
@@ -39,19 +38,12 @@ public class UserService {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED);
         }
             if (userDto.getFirstName() != null) {
-                if (!userRepository.existsByName(userDto.getFirstName())) {
                     currentUser.setFirstName(userDto.getFirstName());
-                } else {
-                    throw new ApplicationException(ErrorCode.CONFLICT);
                 }
-            }
+
             if (userDto.getLastName() != null) {
-                if (!userRepository.existsByName(userDto.getLastName())) {
                     currentUser.setLastName(userDto.getLastName());
-                } else {
-                    throw new ApplicationException(ErrorCode.CONFLICT);
                 }
-            }
             if (userDto.getEmail() != null) {
                 if (!userRepository.existsByEmail(userDto.getEmail())) {
                     currentUser.setEmail(userDto.getEmail());

@@ -1,7 +1,6 @@
 package com.Awesome.Challenge.Online.Marketplace.API.service;
 
 import com.Awesome.Challenge.Online.Marketplace.API.dto.OrderDto;
-import com.Awesome.Challenge.Online.Marketplace.API.exception.UnauthorizedAccessException;
 import com.Awesome.Challenge.Online.Marketplace.API.exceptionHandler.ApplicationException;
 import com.Awesome.Challenge.Online.Marketplace.API.exceptionHandler.ErrorCode;
 import com.Awesome.Challenge.Online.Marketplace.API.model.*;
