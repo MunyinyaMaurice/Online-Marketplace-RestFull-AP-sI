@@ -2,6 +2,8 @@ package com.Awesome.Challenge.Online.Marketplace.API.service;
 
 import com.Awesome.Challenge.Online.Marketplace.API.dto.UserDetailsDTO;
 import com.Awesome.Challenge.Online.Marketplace.API.exception.UnauthorizedAccessException;
+import com.Awesome.Challenge.Online.Marketplace.API.exceptionHandler.ApplicationException;
+import com.Awesome.Challenge.Online.Marketplace.API.exceptionHandler.ErrorCode;
 import com.Awesome.Challenge.Online.Marketplace.API.model.Role;
 import com.Awesome.Challenge.Online.Marketplace.API.model.User;
 import com.Awesome.Challenge.Online.Marketplace.API.repository.UserRepository;
@@ -24,44 +26,75 @@ public class UserService {
 
     // Method to list all users
     public List<UserDetailsDTO> getAllUserDetails() {
+
         return userRepository.getAllUserDetails();
     }
-
     // Method to update user details
     public User updateUser( RegisterRequest userDto) {
 
-        //get current logged user to update own account
-        User user = getCurrentUser();
-
-        // Update user details
-        user.setFirstName(userDto.getFirstName());
-        user.setLastName(userDto.getLastName());
-        user.setEmail(userDto.getEmail());
-
-        // Check if the password is provided and update it if necessary
-        if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        //get current logged currentUser to update own account
+        try {
+        User currentUser = getCurrentUser();
+        if (currentUser ==null) {
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED);
         }
+            if (userDto.getFirstName() != null) {
+                if (!userRepository.existsByName(userDto.getFirstName())) {
+                    currentUser.setFirstName(userDto.getFirstName());
+                } else {
+                    throw new ApplicationException(ErrorCode.CONFLICT);
+                }
+            }
+            if (userDto.getLastName() != null) {
+                if (!userRepository.existsByName(userDto.getLastName())) {
+                    currentUser.setLastName(userDto.getLastName());
+                } else {
+                    throw new ApplicationException(ErrorCode.CONFLICT);
+                }
+            }
+            if (userDto.getEmail() != null) {
+                if (!userRepository.existsByEmail(userDto.getEmail())) {
+                    currentUser.setEmail(userDto.getEmail());
+                } else {
+                    throw new ApplicationException(ErrorCode.CONFLICT);
+                }
+            }
 
-        return userRepository.save(user);
+                // Check if the password is provided and update it if necessary
+                if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
+                    currentUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
+                }
+
+                return userRepository.save(currentUser);
+
+        }catch (ApplicationException e){
+        throw new ApplicationException(ErrorCode.SERVER_ERROR);
+        }
     }
+
 
     // Method to check if a user is admin and update the other users role
     public void updateRoleIfAdmin( Integer userIdToUpdate, Role newRole) {
-        // Retrieve current logged-in user
-        User adminUser = getCurrentUser();
+        try {
+            // Retrieve current logged-in user
+            User adminUser = getCurrentUser();
+            if (adminUser == null) {
+                throw new ApplicationException(ErrorCode.UNAUTHORIZED);
+            }
+            // Check if that user is not admin
+            if (adminUser.getRole() != Role.ADMIN) {
+                throw new ApplicationException(ErrorCode.UNAUTHORIZED, "Only admin users can update roles.");
+            }
 
-        // Check if that user is not admin
-        if (adminUser.getRole() != Role.ADMIN) {
-            throw new UnauthorizedAccessException("Only admin users can update roles.");
+            // Retrieve the user to update
+            User userToUpdate = userRepository.findById(userIdToUpdate)
+                    .orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND));
+
+            // Update the role of the user
+            userToUpdate.setRole(newRole);
+            userRepository.save(userToUpdate);
+        }catch (ApplicationException e) {
+            throw new ApplicationException(ErrorCode.SERVER_ERROR);
         }
-
-        // Retrieve the user to update
-        User userToUpdate = userRepository.findById(userIdToUpdate)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userIdToUpdate));
-
-        // Update the role of the user
-        userToUpdate.setRole(newRole);
-        userRepository.save(userToUpdate);
     }
 }

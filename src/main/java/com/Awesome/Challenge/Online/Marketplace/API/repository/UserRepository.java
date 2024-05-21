@@ -16,4 +16,5 @@ public interface UserRepository extends JpaRepository<User,Integer> {
 public List<UserDetailsDTO> getAllUserDetails();
 
 
+    boolean existsByName(String firstName);
 }

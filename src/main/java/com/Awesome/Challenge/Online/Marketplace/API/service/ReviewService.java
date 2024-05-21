@@ -2,6 +2,9 @@ package com.Awesome.Challenge.Online.Marketplace.API.service;
 
 
 import com.Awesome.Challenge.Online.Marketplace.API.dto.ReviewDto;
+import com.Awesome.Challenge.Online.Marketplace.API.exceptionHandler.ApplicationException;
+import com.Awesome.Challenge.Online.Marketplace.API.exceptionHandler.ErrorCode;
+import com.Awesome.Challenge.Online.Marketplace.API.exceptionHandler.ErrorResponse;
 import com.Awesome.Challenge.Online.Marketplace.API.model.Product;
 import com.Awesome.Challenge.Online.Marketplace.API.model.Review;
 import com.Awesome.Challenge.Online.Marketplace.API.model.User;
@@ -29,13 +32,12 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
 
-    public ResponseEntity<Map<String, Object>> submitReview(Integer productId ,@Valid ReviewDto reviewDto, BindingResult bindingResult){
-        Map<String, Object> response = new HashMap<>();
+    public Review submitReview(Integer productId ,ReviewDto reviewDto){
         try {
         User user= getCurrentUser();
         // Check if the Product with the provided Id exists
         Product product  = productRepository.findById(productId)
-                .orElseThrow(()->new EntityNotFoundException("Product not found with : "+ productId));
+                .orElseThrow(()->new ApplicationException(ErrorCode.NOT_FOUND));
 
         Review review = Review.builder()
                 .user(user)
@@ -43,19 +45,11 @@ public class ReviewService {
                 .rating(reviewDto.getRating())
                 .comment(reviewDto.getComment())
                         .build();
-        // return reviewRepository.save(review);
-        response.put("productReview", reviewRepository.save(review));
-        return ResponseEntity.ok(response);
+         return reviewRepository.save(review);
     }
-        catch (EntityNotFoundException e){
-            response.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        catch (ApplicationException e){
+           throw new ApplicationException(ErrorCode.SERVER_ERROR);
         }
-        catch (Exception e){
-            response.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-
     }
     public List<Review> getProductReviews(Integer productId) {
         // Retrieve reviews associated with the product ID

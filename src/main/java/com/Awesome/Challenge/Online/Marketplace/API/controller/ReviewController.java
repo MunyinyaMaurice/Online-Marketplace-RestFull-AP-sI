@@ -1,6 +1,9 @@
 package com.Awesome.Challenge.Online.Marketplace.API.controller;
 
 import com.Awesome.Challenge.Online.Marketplace.API.dto.ReviewDto;
+import com.Awesome.Challenge.Online.Marketplace.API.exceptionHandler.ApplicationException;
+import com.Awesome.Challenge.Online.Marketplace.API.exceptionHandler.ErrorResponse;
+import com.Awesome.Challenge.Online.Marketplace.API.handleValidation.HandleValidationErrors;
 import com.Awesome.Challenge.Online.Marketplace.API.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
 @Tag(name = "Review management")
 public class ReviewController {
     private final ReviewService reviewService;
+    private final HandleValidationErrors handleValidationErrors;
 
     @Operation(
         summary = "Submit a new product review.",
@@ -42,35 +46,42 @@ public class ReviewController {
     )
 
     // Endpoint for submitting a review
-    @PostMapping("/submitReview")
-    public ResponseEntity<Map<String, Object>> submitReview(@RequestParam Integer productId, @Valid @RequestBody ReviewDto reviewDto, BindingResult bindingResult) {
-       if (bindingResult.hasErrors()) {
-        Map<String, Object> response = new HashMap<>();
-        Map<String, String> errors = bindingResult.getFieldErrors().stream()
-                .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
-        response.put("errors", errors);
-        response.put("message", "Validation failed");
-        return ResponseEntity.badRequest().body(response); // Return a 400 status code for validation errors
-    } else {
-        ResponseEntity<Map<String, Object>> responseEntity= reviewService.submitReview(productId,reviewDto,bindingResult);
-            return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    @PostMapping
+    public ResponseEntity<?> submitReview(@RequestParam Integer productId, @Valid @RequestBody ReviewDto reviewDto, BindingResult bindingResult) {
+      if(bindingResult.hasErrors()){
+          return handleValidationErrors.handleValidationErrors(bindingResult);
+      }
+        try {
+        Review review= reviewService.submitReview(productId,reviewDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(review);
+        } catch (ApplicationException e) {
+            return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                    .body(new ErrorResponse(e.getErrorCode(), e.getMessage()));
         }
     }
-
-
     // Endpoint for retrieving reviews for a product
     @Operation(summary = "Get reviews for a product.", description = "Endpoint for retrieving reviews for a product.")
     @GetMapping("/{productId}")
-    public ResponseEntity<List<Review>> getProductReviews(@PathVariable Integer productId) {
-        List<Review> reviews = reviewService.getProductReviews(productId);
-        return ResponseEntity.ok(reviews);
+    public ResponseEntity<?> getProductReviews(@PathVariable Integer productId) {
+        try {
+            List<Review> reviews = reviewService.getProductReviews(productId);
+            return ResponseEntity.ok(reviews);
+        }catch (ApplicationException e) {
+            return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                    .body(new ErrorResponse(e.getErrorCode(), e.getMessage()));
+        }
     }
 
     // Endpoint for calculating average rating of a product
     @Operation(summary = "Get average rating for a product.", description = "Endpoint for calculating average rating of a product.")
     @GetMapping("/average-rating/{productId}")
-    public ResponseEntity<Double> getProductAverageRating(@PathVariable Integer productId) {
-        Double averageRating = reviewService.getProductAverageRating(productId);
-        return ResponseEntity.ok(averageRating);
+    public ResponseEntity<?> getProductAverageRating(@PathVariable Integer productId) {
+        try {
+            Double averageRating = reviewService.getProductAverageRating(productId);
+            return ResponseEntity.ok(averageRating);
+        }catch (ApplicationException e) {
+            return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                    .body(new ErrorResponse(e.getErrorCode(), e.getMessage()));
+        }
     }
 }
