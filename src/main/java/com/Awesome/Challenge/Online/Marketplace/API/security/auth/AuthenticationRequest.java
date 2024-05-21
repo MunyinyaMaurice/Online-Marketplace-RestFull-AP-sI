@@ -1,4 +1,4 @@
-package com.Awesome.Challenge.Online.Marketplace.API.secuirity.auth;
+package com.Awesome.Challenge.Online.Marketplace.API.security.auth;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;

@@ -1,5 +1,8 @@
 package com.Awesome.Challenge.Online.Marketplace.API.controller;
 
+import com.Awesome.Challenge.Online.Marketplace.API.exceptionHandler.ApplicationException;
+import com.Awesome.Challenge.Online.Marketplace.API.exceptionHandler.ErrorCode;
+import com.Awesome.Challenge.Online.Marketplace.API.model.Order;
 import com.Awesome.Challenge.Online.Marketplace.API.model.Product;
 import com.Awesome.Challenge.Online.Marketplace.API.repository.ProductRepository;
 import com.Awesome.Challenge.Online.Marketplace.API.service.OrderService;
@@ -21,7 +24,7 @@ import java.util.*;
 
 
 @RestController
-@RequestMapping("/api/v2/products")
+@RequestMapping("/api/products")
 @RequiredArgsConstructor
 @Tag(name = "Open End Point for All users")
 public class BuyerController {
@@ -43,24 +46,27 @@ public class BuyerController {
     //This end point allow client to search for product from listed
     @Operation(summary = "Search any product.", description = "This end point allow client to search for product by product name")
     @GetMapping("/{searchParam}")
-    public List<Product> searchProducts(@PathVariable String searchParam) {
+    public ResponseEntity<?> searchProducts(@PathVariable String searchParam) {
 
-        if (searchParam != null) {
-            return productRepository.searchByProductName(searchParam);
-        } else {
-            return null; // Consider returning an empty list instead of null for better practice
+            if (searchParam.isEmpty() || searchParam.isBlank()) {
+                throw new ApplicationException(ErrorCode.BAD_REQUEST,"try to enter product name");
+            }try {
+                List<Product> results = productRepository.searchByProductName(searchParam);
+                return ResponseEntity.ok(results);
+
+        }catch (ApplicationException e){
+           throw  new ApplicationException(ErrorCode.SERVER_ERROR);
         }
     }
-    @Operation(summary = "List of ordered product.,", description = "This end point allow client to get the list of order their have made (Historical)")
+    @Operation(summary = "List of ordered product.,",
+            description = "This end point allow client to get the list of order their have made (Historical)")
     @GetMapping("/ordered")
     public ResponseEntity<?> orderedProducts() {
-
-        if (orderService.getOrdersForBuyer().getStatusCode() == HttpStatus.NOT_FOUND) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-
-        } else {
-            ResponseEntity<?> orderedResponseEntity = orderService.getOrdersForBuyer();
-            return ResponseEntity.status(orderedResponseEntity.getStatusCode()).body(orderedResponseEntity.getBody());
+        try{
+       List <Order> order = orderService.getOrdersForBuyer();
+        return ResponseEntity.ok(order);
+        } catch (ApplicationException e){
+            throw new ApplicationException(ErrorCode.SERVER_ERROR);
         }
     }
 

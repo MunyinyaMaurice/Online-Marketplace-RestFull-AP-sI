@@ -1,12 +1,12 @@
-package com.Awesome.Challenge.Online.Marketplace.API.secuirity.auth;
+package com.Awesome.Challenge.Online.Marketplace.API.security.auth;
 
 import com.Awesome.Challenge.Online.Marketplace.API.model.Role;
 import com.Awesome.Challenge.Online.Marketplace.API.model.User;
 import com.Awesome.Challenge.Online.Marketplace.API.repository.UserRepository;
-import com.Awesome.Challenge.Online.Marketplace.API.secuirity.config.JwtService;
-import com.Awesome.Challenge.Online.Marketplace.API.secuirity.token.Token;
-import com.Awesome.Challenge.Online.Marketplace.API.secuirity.token.TokenRepository;
-import com.Awesome.Challenge.Online.Marketplace.API.secuirity.token.TokenType;
+import com.Awesome.Challenge.Online.Marketplace.API.security.config.JwtService;
+import com.Awesome.Challenge.Online.Marketplace.API.security.token.Token;
+import com.Awesome.Challenge.Online.Marketplace.API.security.token.TokenRepository;
+import com.Awesome.Challenge.Online.Marketplace.API.security.token.TokenType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,8 +28,6 @@ import org.springframework.validation.FieldError;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor

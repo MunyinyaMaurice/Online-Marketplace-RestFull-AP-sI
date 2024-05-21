@@ -1,4 +1,4 @@
-package com.finalyear.VolunteeringSystm.handleValidation;
+package com.Awesome.Challenge.Online.Marketplace.API.handleValidation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;

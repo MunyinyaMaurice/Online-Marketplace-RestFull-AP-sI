@@ -1,4 +1,4 @@
-package com.finalyear.VolunteeringSystm.exceptionHandler;
+package com.Awesome.Challenge.Online.Marketplace.API.exceptionHandler;
 
 import org.springframework.http.HttpStatus;
 

@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v2/reviews")
+@RequestMapping("/api/reviews")
 @Tag(name = "Review management")
 public class ReviewController {
     private final ReviewService reviewService;

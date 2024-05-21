@@ -21,7 +21,7 @@ import org.springframework.validation.BindingResult;
 
 import java.util.List;
 
-import static com.Awesome.Challenge.Online.Marketplace.API.secuirity.config.ApplicationConfig.getCurrentUser;
+import static com.Awesome.Challenge.Online.Marketplace.API.security.config.ApplicationConfig.getCurrentUser;
 
 @Service
 @RequiredArgsConstructor

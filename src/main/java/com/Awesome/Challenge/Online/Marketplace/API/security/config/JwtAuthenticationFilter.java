@@ -1,14 +1,12 @@
-package com.Awesome.Challenge.Online.Marketplace.API.secuirity.config;
+package com.Awesome.Challenge.Online.Marketplace.API.security.config;
 
-import com.Awesome.Challenge.Online.Marketplace.API.secuirity.token.TokenRepository;
+import com.Awesome.Challenge.Online.Marketplace.API.security.token.TokenRepository;
 import io.micrometer.common.lang.NonNull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;

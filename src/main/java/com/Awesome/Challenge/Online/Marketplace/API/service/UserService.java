@@ -5,7 +5,7 @@ import com.Awesome.Challenge.Online.Marketplace.API.exception.UnauthorizedAccess
 import com.Awesome.Challenge.Online.Marketplace.API.model.Role;
 import com.Awesome.Challenge.Online.Marketplace.API.model.User;
 import com.Awesome.Challenge.Online.Marketplace.API.repository.UserRepository;
-import com.Awesome.Challenge.Online.Marketplace.API.secuirity.auth.RegisterRequest;
+import com.Awesome.Challenge.Online.Marketplace.API.security.auth.RegisterRequest;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.Awesome.Challenge.Online.Marketplace.API.secuirity.config.ApplicationConfig.getCurrentUser;
+import static com.Awesome.Challenge.Online.Marketplace.API.security.config.ApplicationConfig.getCurrentUser;
 
 @Service
 @RequiredArgsConstructor

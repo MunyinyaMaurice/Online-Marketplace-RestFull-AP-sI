@@ -4,7 +4,6 @@ package com.Awesome.Challenge.Online.Marketplace.API.service;
 import com.Awesome.Challenge.Online.Marketplace.API.dto.ProductDto;
 import com.Awesome.Challenge.Online.Marketplace.API.dto.ProductUpdateDto;
 import com.Awesome.Challenge.Online.Marketplace.API.dto.ProductWithImageDataDto;
-import com.Awesome.Challenge.Online.Marketplace.API.exception.*;
 // import com.Awesome.Challenge.Online.Marketplace.API.exception.UserNotFoundException;
 import com.Awesome.Challenge.Online.Marketplace.API.model.Category;
 import com.Awesome.Challenge.Online.Marketplace.API.model.Product;
@@ -20,7 +19,6 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -34,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.Awesome.Challenge.Online.Marketplace.API.secuirity.config.ApplicationConfig.getCurrentUser;
+import static com.Awesome.Challenge.Online.Marketplace.API.security.config.ApplicationConfig.getCurrentUser;
 
 
 @Service

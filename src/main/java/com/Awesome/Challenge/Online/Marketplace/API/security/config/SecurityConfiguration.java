@@ -1,4 +1,4 @@
-package com.Awesome.Challenge.Online.Marketplace.API.secuirity.config;
+package com.Awesome.Challenge.Online.Marketplace.API.security.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -15,9 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 
 //import static com.Awesome.Challenge.Online.Marketplace.API.model.Permission.ADMIN_DELETE;
-import static com.Awesome.Challenge.Online.Marketplace.API.model.Permission.*;
 import static com.Awesome.Challenge.Online.Marketplace.API.model.Role.*;
-import static org.springframework.http.HttpMethod.*;
 //import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -26,9 +24,9 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @RequiredArgsConstructor
 @EnableMethodSecurity
 public class SecurityConfiguration {
-    private static final String[] WHITE_LIST_URL = {"/api/v2/auth/**",
-            "/api/v2/products/listed",
-            "/api/v2/products/{searchParam}",
+    private static final String[] WHITE_LIST_URL = {"/api/auth/**",
+            "/api/products/listed",
+            "/api/products/{searchParam}",
             //LIST OF AUTHORIZED SWAGGER URLs
             "/v2/api-docs",
             "/v3/api-docs",
@@ -42,33 +40,33 @@ public class SecurityConfiguration {
             "/swagger-ui.html"
             };
     private static final String[] LIST_FOR_LOGGED_IN_URL = {
-        "/api/v2/order/submit_order",
-        "/api/v2/reviews/submitReview",
-        "/api/v2/users/{userId}",
-        "/api/v2/products/ordered",
+        "/api/order/submit_order",
+        "/api/reviews/submitReview",
+        "/api/users/{userId}",
+        "/api/products/ordered",
     };
     private static final String[] ADMIN_SELLER_LIST_URL = {
            
-"/api/v2/order/received",
-"/api/v2/order/{orderId}",
-"/api/v2/reviews/{productId}",
-"/api/v2/reviews/average-rating/{productId}",
-"/api/v2/product/create_product",
-"/api/v2/images/upload/{productId}",
-"/api/v2/images/{imageId}",
+"/api/order/received",
+"/api/order/{orderId}",
+"/api/reviews/{productId}",
+"/api/reviews/average-rating/{productId}",
+"/api/product/create_product",
+"/api/images/upload/{productId}",
+"/api/images/{imageId}",
     };
     private static final String[] ADMIN_LIST_URL = {
-        "/api/v2/category/**",
-        "/api/v2/product/All_products",
-        "/api/v2/product/images/{productId}",
-        "/api/v2/product/{productId}",
-        "/api/v2/product/{productId}",
-        "/api/v2/product/notListed",
-        "/api/v2/product/sortedByRating",
-        "/api/v2/product/highRated",
-        "/api/v2/product/popular",
-        "/api/v2/users/all_users",
-        "/api/v2/users/{userIdToUpdateRole}",
+        "/api/category/**",
+        "/api/product/All_products",
+        "/api/product/images/{productId}",
+        "/api/product/{productId}",
+        "/api/product/{productId}",
+        "/api/product/notListed",
+        "/api/product/sortedByRating",
+        "/api/product/highRated",
+        "/api/product/popular",
+        "/api/users/all_users",
+        "/api/users/{userIdToUpdateRole}",
 
     };
 //    private static final String[]

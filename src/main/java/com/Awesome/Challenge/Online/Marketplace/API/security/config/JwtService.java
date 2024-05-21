@@ -1,4 +1,4 @@
-package com.Awesome.Challenge.Online.Marketplace.API.secuirity.config;
+package com.Awesome.Challenge.Online.Marketplace.API.security.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

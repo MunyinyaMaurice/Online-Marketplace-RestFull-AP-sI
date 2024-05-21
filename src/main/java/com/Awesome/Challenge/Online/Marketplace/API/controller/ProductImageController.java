@@ -21,7 +21,7 @@ import java.util.Base64;
 
 @RestController
 //@RequiredArgsConstructor
-@RequestMapping("/api/v2/images")
+@RequestMapping("/api/images")
 
 @Tag(name = "Manage Product and Image association")
 public class ProductImageController {

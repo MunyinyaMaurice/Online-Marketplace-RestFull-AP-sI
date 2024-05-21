@@ -1,4 +1,4 @@
-package com.finalyear.VolunteeringSystm.exceptionHandler;
+package com.Awesome.Challenge.Online.Marketplace.API.exceptionHandler;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,22 +15,4 @@ public class ErrorResponse {
         this.message = errorCode.getMessage();
         this.stackTrace = stackTrace;
     }
-
-//    public ErrorResponse(int code, String message, String stackTrace) {
-//        this.code = code;
-//        this.message = message;
-//        this.stackTrace = stackTrace;
-//    }
-
-//    public int getCode() {
-//        return code;
-//    }
-//
-//    public String getMessage() {
-//        return message;
-//    }
-//
-//    public String getStackTrace() {
-//        return stackTrace;
-//    }
 }

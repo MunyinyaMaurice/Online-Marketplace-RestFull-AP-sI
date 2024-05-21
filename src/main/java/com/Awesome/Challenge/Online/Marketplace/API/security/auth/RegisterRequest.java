@@ -1,4 +1,4 @@
-package com.Awesome.Challenge.Online.Marketplace.API.secuirity.auth;
+package com.Awesome.Challenge.Online.Marketplace.API.security.auth;
 
 import com.Awesome.Challenge.Online.Marketplace.API.model.Role;
 import jakarta.validation.Valid;

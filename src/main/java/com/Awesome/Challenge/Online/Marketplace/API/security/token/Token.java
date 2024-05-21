@@ -1,4 +1,4 @@
-package com.Awesome.Challenge.Online.Marketplace.API.secuirity.token;
+package com.Awesome.Challenge.Online.Marketplace.API.security.token;
 
 import com.Awesome.Challenge.Online.Marketplace.API.model.User;
 import jakarta.persistence.*;

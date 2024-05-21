@@ -4,14 +4,12 @@ import com.Awesome.Challenge.Online.Marketplace.API.dto.UserDetailsDTO;
 import com.Awesome.Challenge.Online.Marketplace.API.exception.UnauthorizedAccessException;
 import com.Awesome.Challenge.Online.Marketplace.API.model.Role;
 import com.Awesome.Challenge.Online.Marketplace.API.model.User;
-import com.Awesome.Challenge.Online.Marketplace.API.secuirity.auth.RegisterRequest;
+import com.Awesome.Challenge.Online.Marketplace.API.security.auth.RegisterRequest;
 import com.Awesome.Challenge.Online.Marketplace.API.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -23,7 +21,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v2/users")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
 

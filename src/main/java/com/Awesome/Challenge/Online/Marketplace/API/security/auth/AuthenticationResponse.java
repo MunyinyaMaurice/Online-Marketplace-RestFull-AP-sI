@@ -1,4 +1,4 @@
-package com.Awesome.Challenge.Online.Marketplace.API.secuirity.auth;
+package com.Awesome.Challenge.Online.Marketplace.API.security.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;

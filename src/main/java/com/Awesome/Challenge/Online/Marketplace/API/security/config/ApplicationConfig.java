@@ -1,4 +1,4 @@
-package com.Awesome.Challenge.Online.Marketplace.API.secuirity.config;
+package com.Awesome.Challenge.Online.Marketplace.API.security.config;
 
 import com.Awesome.Challenge.Online.Marketplace.API.model.User;
 import com.Awesome.Challenge.Online.Marketplace.API.repository.UserRepository;

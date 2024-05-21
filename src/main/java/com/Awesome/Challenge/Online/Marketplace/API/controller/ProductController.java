@@ -2,9 +2,7 @@ package com.Awesome.Challenge.Online.Marketplace.API.controller;
 
 import com.Awesome.Challenge.Online.Marketplace.API.dto.ProductDto;
 import com.Awesome.Challenge.Online.Marketplace.API.dto.ProductUpdateDto;
-import com.Awesome.Challenge.Online.Marketplace.API.dto.ProductWithImageDataDto;
 import com.Awesome.Challenge.Online.Marketplace.API.model.Product;
-import com.Awesome.Challenge.Online.Marketplace.API.secuirity.auth.RegisterRequest;
 import com.Awesome.Challenge.Online.Marketplace.API.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,14 +10,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +25,7 @@ import java.util.stream.Collectors;
 //import static com.sun.org.apache.xalan.internal.xsltc.compiler.sym.error;
 
 @RestController
-@RequestMapping("/api/v2/product")
+@RequestMapping("/api/product")
 @RequiredArgsConstructor
 @Tag(name = "Product management")
 
