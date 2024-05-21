@@ -51,7 +51,7 @@ public class SecurityConfiguration {
 "/api/order/{orderId}",
 "/api/reviews/{productId}",
 "/api/reviews/average-rating/{productId}",
-"/api/product/create_product",
+"/api/product",
 "/api/images/upload/{productId}",
 "/api/images/{imageId}",
     };

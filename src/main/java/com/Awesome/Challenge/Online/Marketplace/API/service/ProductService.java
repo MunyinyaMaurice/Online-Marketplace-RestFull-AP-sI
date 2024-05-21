@@ -2,9 +2,12 @@
 package com.Awesome.Challenge.Online.Marketplace.API.service;
 
 import com.Awesome.Challenge.Online.Marketplace.API.dto.ProductDto;
+import com.Awesome.Challenge.Online.Marketplace.API.dto.ProductImageDto;
 import com.Awesome.Challenge.Online.Marketplace.API.dto.ProductUpdateDto;
 import com.Awesome.Challenge.Online.Marketplace.API.dto.ProductWithImageDataDto;
 // import com.Awesome.Challenge.Online.Marketplace.API.exception.UserNotFoundException;
+import com.Awesome.Challenge.Online.Marketplace.API.exceptionHandler.ApplicationException;
+import com.Awesome.Challenge.Online.Marketplace.API.exceptionHandler.ErrorCode;
 import com.Awesome.Challenge.Online.Marketplace.API.model.Category;
 import com.Awesome.Challenge.Online.Marketplace.API.model.Product;
 import com.Awesome.Challenge.Online.Marketplace.API.model.ProductImage;
@@ -19,6 +22,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.integration.IntegrationProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -60,61 +64,42 @@ public class ProductService {
 
     }
     // This method create new product, associate it to seller. sets the listed flag based on the quantity provided =>true >0
-    public ResponseEntity<Map<String, Object>> createProduct(@Valid ProductDto productDto, BindingResult bindingResult) {
-    Map<String, Object> response = new HashMap<>();
-
-    if (bindingResult.hasErrors()) {
-        // Handling validation errors
-        Map<String, String> errors = bindingResult.getFieldErrors().stream()
-                .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
-        response.put("errors", errors);
-        response.put("message", "Validation failed");
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-        try {
-            User seller = getCurrentUser();
-
-            if (productRepository.existsByName(productDto.getName())) {
-                response.put("message", "A product with the same name already exists.");
-                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-            }
+    public Product createProduct( ProductDto productDto) {
+        User seller = getCurrentUser();
+        if (productRepository.existsByName(productDto.getName())) {
+            throw new ApplicationException(ErrorCode.CONFLICT);
+        }
             // Extract the categoryId from the ProductDto
             Integer categoryId = productDto.getCategoryId();
 
             // Check if the Category with the provided categoryId exists
             Category category = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new EntityNotFoundException("Category not found for categoryId: " + categoryId));
+                    .orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND, "Category not found"));
 
-                  // Validate price and quantity
-          if (!isValidNumericValue(productDto.getPrice()) || !isValidNumericValue(productDto.getQuantity())) {
-            response.put("message", "Price and quantity must be numeric values.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
-            // Create the Product entity with the retrieved Category and User (seller)
-            Product product = Product.builder()
-                    .name(productDto.getName())
-                    .description(productDto.getDescription())
-                    .price(productDto.getPrice())
-                    .quantity(productDto.getQuantity())
-                    .category(category)
-                    .seller(seller)
-                    .build();
+            // Validate price and quantity
+            if (!isValidNumericValue(productDto.getPrice()) || !isValidNumericValue(productDto.getQuantity())) {
+                throw new ApplicationException(ErrorCode.BAD_REQUEST, "Price and quantity must be numeric values.");
+            }
+            // Create the Product entity with the retrieved Category and User as (seller)
+            try {
+                Product product = Product.builder()
+                        .name(productDto.getName())
+                        .description(productDto.getDescription())
+                        .price(productDto.getPrice())
+                        .quantity(productDto.getQuantity())
+                        .category(category)
+                        .seller(seller)
+                        .build();
 
-            // Set the listed flag based on the quantity
-            product.setListed(productDto.getQuantity() > 0);
+                // Set the listed flag based on the quantity
+                product.setListed(productDto.getQuantity() > 0);
 
-            // Save the Product entity
-            product = productRepository.save(product);
-            response.put("message", "Product created successfully");
-            response.put("product", product);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (EntityNotFoundException ex) {
-            response.put("message", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        } catch (Exception ex) {
-        response.put("message", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);    
-        }
+                // Save the Product entity
+                return productRepository.save(product);
+
+            } catch (ApplicationException ex) {
+                throw new ApplicationException(ErrorCode.SERVER_ERROR);
+            }
     }
     private boolean isValidNumericValue(BigDecimal value) {
         try {
@@ -140,20 +125,11 @@ public class ProductService {
         }
     }
 
-        public ResponseEntity<Map<String, Object>> updateProduct(Integer productId, ProductUpdateDto productDto,@Valid BindingResult bindingResult) {
-            Map<String, Object> response = new HashMap<>();
-        
-            if (bindingResult.hasErrors()) {
-                // Handling validation errors
-                Map<String, String> errors = bindingResult.getFieldErrors().stream()
-                        .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
-                response.put("errors", errors);
-                response.put("message", "Validation failed");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-            } try {
+        public Product updateProduct(Integer productId, ProductUpdateDto productDto) {
+                try {
                 // Retrieve the existing Product entity from the database
                 Product existingProduct = productRepository.findById(productId)
-                        .orElseThrow(() -> new EntityNotFoundException("Product not found for id: " + productId));
+                        .orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND));
         
                 // Update the fields of the existing Product entity with the new values from the ProductDto
         
@@ -162,8 +138,7 @@ public class ProductService {
                     if (!productRepository.existsByName(productDto.getName())) {
                         existingProduct.setName(productDto.getName());
                     } else {
-                        response.put("message", "A product with the same name already exists with different ID.");
-                        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+                       throw new ApplicationException(ErrorCode.CONFLICT);
                     }
                 }
         
@@ -177,30 +152,28 @@ public class ProductService {
                     if (productDto.getPrice().compareTo(BigDecimal.ZERO) > 0) {
                         existingProduct.setPrice(productDto.getPrice());
                     } else {
-                        response.put("message", "A product price should be greater than 0.");
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+                        throw new ApplicationException(ErrorCode.BAD_REQUEST,"A product price should be greater than 0.");
                     }
                 }
         
                 // Validate and update product quantity if provided
                 if (productDto.getQuantity() != null) {
-                    if (productDto.getQuantity() > 0) {
+//                    if (productDto.getQuantity() > 0) {
                         existingProduct.setQuantity(productDto.getQuantity());
-                    } else {
-                        response.put("message", "Quantity must be greater than 0.");
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-                        }
+//                    } else {
+//                        throw new ApplicationException(ErrorCode.BAD_REQUEST,"Quantity must be greater than 0.");
+//                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+//                        }
                 }
         
                 // Validate and update product category if provided
                 if (productDto.getCategoryId() != null) {
                     if (categoryRepository.existsById(productDto.getCategoryId())) {
                         Category category = categoryRepository.findById(productDto.getCategoryId())
-                                .orElseThrow(() -> new EntityNotFoundException("Category not found for this categoryId: " + productDto.getCategoryId()));
+                                .orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND));
                         existingProduct.setCategory(category);
                     } else {
-                        response.put("message", "Category not Exist for this categoryId" + productDto.getCategoryId());
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+                        throw new ApplicationException(ErrorCode.BAD_REQUEST,"provided category does not exist");
                     }
                 }
         
@@ -208,88 +181,60 @@ public class ProductService {
                 if (productDto.getSellerId() != null) {
                     if (userRepository.existsById(productDto.getSellerId())) {
                         User seller = userRepository.findById(productDto.getSellerId())
-                                .orElseThrow(() -> new EntityNotFoundException("User (seller) not found for sellerId: " + productDto.getSellerId()));
+                                .orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND,"User (seller) not found"));
                         existingProduct.setSeller(seller);
                     } else {
-                        response.put("message", "User (seller) not Exist for this sellerId: " + productDto.getSellerId());
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+                        throw new ApplicationException(ErrorCode.BAD_REQUEST);
                                 
                     }
                 }
-        
                 // Save and return the updated Product entity
-                Product updatedProduct = productRepository.save(existingProduct);
-                // return ResponseEntity.ok(updatedProduct);
+                 return productRepository.save(existingProduct);
 
-                response.put("message", "Product updated successfully");
-                response.put("product", updatedProduct);
-                return ResponseEntity.status(HttpStatus.OK).body(response);
         
         } catch (EntityNotFoundException ex) {
-            response.put("message", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        } 
-        catch (Exception ex) {
-        response.put("message", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);    
+            throw new ApplicationException(ErrorCode.SERVER_ERROR);
         }
         }
        
     // Find a product by its ID
-    public ResponseEntity<?> findProductById(Integer productId) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            Product product = productRepository.findById(productId)
-                    .orElseThrow(() -> new EntityNotFoundException("Product not found for id: " + productId));
-                     response.put("product", product);
-            return ResponseEntity.ok(product);
-        } catch (EntityNotFoundException ex) {
-            response.put("error", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        } catch (Exception ex) {
-            response.put("error", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-    public ResponseEntity<?> getProductWithImageData(Integer productId) {
-        Map<String, Object> response = new HashMap<>();
-         // Check if the product exists
-         if (!productRepository.existsById(productId)) {
-            throw new EntityNotFoundException("Product does not exist with ID: " + productId);
-          } try {
-           
-            Product product = productRepository.findById(productId)
-                        .orElseThrow(() -> new EntityNotFoundException("Product not found with ID: " + productId));
-                // Retrieve the associated image data
-                List<ProductImage> productImages = productImageRepository.findByProductId(productId);
-        
-                // Created a new DTO to hold product data with image data
-                ProductWithImageDataDto productWithImageDataDto = new ProductWithImageDataDto();
-                productWithImageDataDto.setId(product.getId());
-                productWithImageDataDto.setName(product.getName());
-                productWithImageDataDto.setDescription(product.getDescription());
-                productWithImageDataDto.setPrice(product.getPrice());
-                productWithImageDataDto.setQuantity(product.getQuantity());
-        
-                // Convert image data to Base64 for easy transmission
-                List<String> imageDataList = productImages.stream()
-                        .map(productImage -> Base64.getEncoder().encodeToString(productImage.getImageData()))
-                        .collect(Collectors.toList());
-                productWithImageDataDto.setImageDataList(imageDataList);
-                response.put("productWithImages", productWithImageDataDto);
-                return ResponseEntity.ok(response);
-            // } else {
-            //     throw new EntityNotFoundException("Product not found with ID: " + productId);
-            // }
-        } catch (EntityNotFoundException ex) {
-            response.put("error", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        } catch (Exception ex) {
-            response.put("error", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);    
-        }
-    }
+    public Product findProductById(Integer productId) {
 
+            return productRepository.findById(productId)
+                    .orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND));
+    }
+    public ProductWithImageDataDto getProductWithImageData(Integer productId) {
+        Map<String, Object> response = new HashMap<>();
+        // Check if the product exists
+        if (!productRepository.existsById(productId)) {
+            throw new ApplicationException(ErrorCode.BAD_REQUEST, "Product does not exist");
+        }
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND));
+        // Retrieve the associated image data
+        try {
+            List<ProductImage> productImages = productImageRepository.findByProductId(productId);
+
+            // Created a new DTO to hold product data with image data
+            ProductWithImageDataDto productWithImageDataDto = new ProductWithImageDataDto();
+            productWithImageDataDto.setId(product.getId());
+            productWithImageDataDto.setName(product.getName());
+            productWithImageDataDto.setDescription(product.getDescription());
+            productWithImageDataDto.setPrice(product.getPrice());
+            productWithImageDataDto.setQuantity(product.getQuantity());
+
+            // Convert image data to Base64 for easy transmission
+            List<String> imageDataList = productImages.stream()
+                    .map(productImage -> Base64.getEncoder().encodeToString(productImage.getImageData()))
+                    .collect(Collectors.toList());
+            productWithImageDataDto.setImageDataList(imageDataList);
+                return productWithImageDataDto;
+//
+        } catch (ApplicationException ex) {
+            throw new ApplicationException(ErrorCode.SERVER_ERROR);
+        }
+    }
     
     // This method Delete a product by its ID
     
@@ -299,12 +244,11 @@ public class ProductService {
         }
     
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found for ID: " + productId));
-    
+                .orElseThrow(() -> new ApplicationException(ErrorCode.NOT_FOUND));
         productRepository.delete(product);
     }
     
-    // This method Get all method
+    // This method Get all product
     public List<Product> getALlProduct() {
         return productRepository.findAll();
     }
